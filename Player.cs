@@ -2,7 +2,7 @@
 
 namespace DungeonExplorer
 {
-    public class Player
+    internal class Player
     {
         private string name;
         private int health;
