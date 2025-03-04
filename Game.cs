@@ -1,55 +1,70 @@
-﻿using OOP_ASSIGNMENT_TEST2.OOP_ASSIGNMENT_TEST;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OOP_ASSIGNMENT_TEST2
+namespace DungeonExplorer
 {
-    
-        internal class Game
+    /// <summary>
+    /// Represents the main game logic for Dungeon Explorer.
+    /// Handles game initialization and player interactions.
+    /// </summary>
+    internal class Game
+    {
+        private Player player;
+        private Room room;
+
+        /// <summary>
+        /// Initializes the game by creating a player and a starting room.
+        /// </summary>
+        public Game()
         {
-            private Player player;
-            private Room room;
+            player = new Player("", 100);
+            room = new Room();
+        }
 
-            public Game()
+        /// <summary>
+        /// Starts the game, prompts the player for their name, 
+        /// and initiates the room interaction.
+        /// </summary>
+        public void Start()
+        {
+            Console.WriteLine("Dungeon Explorer");
+            player.Name = GetPlayerName();
+            Console.WriteLine("Would you like to start the game? (y/n)");
+
+            if (Console.ReadLine()?.ToLower() == "y")
             {
-                player = new Player("", 100);
-                room = new Room();
+                Console.WriteLine("Game Started...");
+                Console.WriteLine("====================");
+                room.GetDescription(player);
             }
-
-            public void Start()
+            else
             {
-                Console.WriteLine("Dungeon Explorer");
-                player.Name = GetPlayerName();
-                Console.WriteLine("Would you like to start the game? (y/n)");
-
-                if (Console.ReadLine()?.ToLower() == "y")
-                {
-                    Console.WriteLine("Game Started...");
-                    room.GetDescription(player);
-                }
-                else
-                {
-                    Console.WriteLine("Exiting game...");
-                }
-            }
-
-            private string GetPlayerName()
-            {
-                string name = "";
-                while (string.IsNullOrWhiteSpace(name))
-                {
-                    Console.WriteLine("Enter your name:");
-                    name = Console.ReadLine();
-                    if (string.IsNullOrWhiteSpace(name))
-                    {
-                        Console.WriteLine("Invalid name, please try again.");
-                    }
-                }
-                return name;
+                Console.WriteLine("Exiting game...");
+                Console.ReadLine();
             }
         }
-    }
 
+        /// <summary>
+        /// Prompts the player to enter their name.
+        /// Ensures the name is not empty.
+        /// </summary>
+        /// <returns>The player's name.</returns>
+        private string GetPlayerName()
+        {
+            string name = "";
+            while (string.IsNullOrWhiteSpace(name))
+            {
+                Console.WriteLine("Enter your name:");
+                name = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    Console.WriteLine("Invalid name, please try again.");
+                }
+            }
+            return name;
+        }
+    }
+}
