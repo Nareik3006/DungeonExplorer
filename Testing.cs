@@ -15,8 +15,8 @@ namespace DungeonExplorer
             Console.WriteLine("Running Tests...");
             TestPlayerHealth();
             TestInventoryManagement();
-            TestItemPickupLimit(); // Run before Room test to prevent blocking
-            TestRoomDescription(); // Room test is now safe
+            TestItemPickupLimit(); 
+            TestRoomDescription(); 
             Console.WriteLine("All Tests Completed.");
         }
 

@@ -37,7 +37,7 @@ namespace DungeonExplorer
             if (Console.ReadLine()?.ToLower() == "y")
             {
                 Console.WriteLine("Game Started...");
-                Console.WriteLine("====================");
+                Console.Clear();
                 room.GetDescription(player);
             }
             else
@@ -66,5 +66,7 @@ namespace DungeonExplorer
             }
             return name;
         }
+
+
     }
 }
