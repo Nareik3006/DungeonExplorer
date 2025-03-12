@@ -38,6 +38,7 @@ namespace DungeonExplorer
             {
                 Console.WriteLine("Game Started...");
                 Console.Clear();
+                Console.WriteLine("You enter the first room.");
                 room.GetDescription(player);
             }
             else

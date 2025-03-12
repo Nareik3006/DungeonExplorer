@@ -16,7 +16,8 @@ namespace DungeonExplorer
             TestPlayerHealth();
             TestInventoryManagement();
             TestItemPickupLimit(); 
-            TestRoomDescription(); 
+            TestRoomDescription();
+            TestExperienceSystem();
             Console.WriteLine("All Tests Completed.");
         }
 
@@ -84,6 +85,31 @@ namespace DungeonExplorer
             Debug.Assert(room != null, "Test Failed: Room object is null.");
             Console.WriteLine("Room test passed.");
         }
+
+        /// <summary>
+        /// Tests if Experience can be gained, added and removed
+        /// </summary>
+        public static void TestExperienceSystem()
+        {
+            Player player = new Player("TestPlayer", 100);
+            Debug.Assert(player.Experience == 0, "Test Failed: XP should start at 0.");
+            Console.WriteLine("XP initialization test passed.");
+
+            SuppressConsoleOutput(() => player.GainXP(10));
+            Debug.Assert(player.Experience == 10, "Test Failed: XP should be 10 after gaining 10 XP.");
+            Console.WriteLine("XP gain test passed.");
+
+            SuppressConsoleOutput(() => player.GainXP(20));
+            Debug.Assert(player.Experience == 30, "Test Failed: XP should be 30 after gaining another 20 XP.");
+            Console.WriteLine("XP accumulation test passed.");
+
+            SuppressConsoleOutput(() => player.GainXP(-10));  
+            Debug.Assert(player.Experience >= 0, "Test Failed: XP should never be negative.");
+            Console.WriteLine("Negative XP test passed.");
+
+            Console.WriteLine("All XP tests completed.\n");
+        }
+
 
         /// <summary>
         /// Temporarily suppresses console output while running an action.

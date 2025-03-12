@@ -5,3 +5,10 @@ C:\Users\super\Desktop\DungeonExplorer-development (2)\DungeonExplorer-developme
 C:\Users\super\Desktop\DungeonExplorer-development (2)\DungeonExplorer-development\obj\Debug\DungeonExplorer.csproj.CoreCompileInputs.cache
 C:\Users\super\Desktop\DungeonExplorer-development (2)\DungeonExplorer-development\obj\Debug\DungeonExplorer.exe
 C:\Users\super\Desktop\DungeonExplorer-development (2)\DungeonExplorer-development\obj\Debug\DungeonExplorer.pdb
+C:\Users\super\Desktop\evxbvxbv\DungeonExplorer-development (2)\DungeonExplorer-development\bin\Debug\DungeonExplorer.exe.config
+C:\Users\super\Desktop\evxbvxbv\DungeonExplorer-development (2)\DungeonExplorer-development\bin\Debug\DungeonExplorer.exe
+C:\Users\super\Desktop\evxbvxbv\DungeonExplorer-development (2)\DungeonExplorer-development\bin\Debug\DungeonExplorer.pdb
+C:\Users\super\Desktop\evxbvxbv\DungeonExplorer-development (2)\DungeonExplorer-development\obj\Debug\DungeonExplorer.csproj.AssemblyReference.cache
+C:\Users\super\Desktop\evxbvxbv\DungeonExplorer-development (2)\DungeonExplorer-development\obj\Debug\DungeonExplorer.csproj.CoreCompileInputs.cache
+C:\Users\super\Desktop\evxbvxbv\DungeonExplorer-development (2)\DungeonExplorer-development\obj\Debug\DungeonExplorer.exe
+C:\Users\super\Desktop\evxbvxbv\DungeonExplorer-development (2)\DungeonExplorer-development\obj\Debug\DungeonExplorer.pdb
