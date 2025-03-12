@@ -13,6 +13,9 @@ namespace DungeonExplorer
         private int health;
         private List<string> inventory;
 
+        //Adding an XP object inside Player
+        private Experience playerXP = new Experience();
+
         /// <summary>
         /// Gets or sets the player's name. If an empty name is given, defaults to "Unknown".
         /// </summary>
@@ -32,6 +35,14 @@ namespace DungeonExplorer
         }
 
         /// <summary>
+        /// Gets the player's XP.
+        /// </summary>
+        public int Experience  
+        {
+            get { return playerXP.XP; }
+        }
+
+        /// <summary>
         /// Gets the player's inventory, which contains a list of items.
         /// </summary>
         public List<string> Inventory { get { return inventory; } }
@@ -46,6 +57,14 @@ namespace DungeonExplorer
             Name = name;
             Health = health;
             inventory = new List<string>();
+        }
+
+        /// <summary>
+        /// Allows the player to Gain XP
+        /// </summary>
+        public void GainXP(int amount)
+        {
+            playerXP.AddXP(amount);  
         }
 
         /// <summary>
@@ -67,13 +86,14 @@ namespace DungeonExplorer
         }
 
         /// <summary>
-        /// Displays the player's current stats, including health and inventory.
+        /// Displays the player's current stats, including health, XP and inventory.
         /// </summary>
         public void Stats()
         {
             Console.WriteLine("====================");
             Console.WriteLine($"Name: {Name}");
             Console.WriteLine($"Health: {Health}/100");
+            Console.WriteLine($"XP: {playerXP.XP}");  
             Console.WriteLine("Items: " + (inventory.Count > 0 ? string.Join(", ", inventory) : "No items"));
         }
     }

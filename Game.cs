@@ -21,7 +21,7 @@ namespace DungeonExplorer
         public Game()
         {
             player = new Player("", 100);
-            room = new Room();
+             room = new Room();
         }
 
         /// <summary>
@@ -38,6 +38,7 @@ namespace DungeonExplorer
             {
                 Console.WriteLine("Game Started...");
                 Console.Clear();
+                Console.WriteLine("You enter the first room.");
                 room.GetDescription(player);
             }
             else

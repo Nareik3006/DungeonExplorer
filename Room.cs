@@ -64,6 +64,7 @@ namespace DungeonExplorer
                             Console.WriteLine($"You open Chest #1 and find: {firstChestItem}");
                             // Add item to inventory
                             player.PickUpItem(firstChestItem);
+                            player.GainXP(10);  // ✅ Gain XP when opening a chest
                             // Mark the chest as looted
                             firstChestLooted = true; 
                             Console.ReadLine();
@@ -85,6 +86,7 @@ namespace DungeonExplorer
                             Console.WriteLine($"You open Chest #2 and find: {secondChestItem}");
                             // Add item to inventory
                             player.PickUpItem(secondChestItem);
+                            player.GainXP(10);  // ✅ Gain XP when opening a chest
                             // Mark the chest as looted
                             secondChestLooted = true; 
                             Console.ReadLine();
