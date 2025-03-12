@@ -21,7 +21,7 @@ namespace DungeonExplorer
         public Game()
         {
             player = new Player("", 100);
-             room = new Room();
+            room = new Room();
         }
 
         /// <summary>
