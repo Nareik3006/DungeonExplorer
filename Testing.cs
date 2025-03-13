@@ -117,9 +117,11 @@ namespace DungeonExplorer
         private static void SuppressConsoleOutput(Action action)
         {
             TextWriter originalOutput = Console.Out;
-            Console.SetOut(new StringWriter()); // Redirect console output
+            // Redirect console output
+            Console.SetOut(new StringWriter()); 
             action();
-            Console.SetOut(originalOutput); // Restore console output
+            // Restore console output
+            Console.SetOut(originalOutput); 
         }
     }
 }
