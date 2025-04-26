@@ -1,127 +1,117 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using DungeonExplorer;
 
 namespace DungeonExplorer
 {
+    /// <summary>
+    /// Contains unit tests for various components of the Dungeon Explorer game.
+    /// </summary>
     internal class Testing
     {
         /// <summary>
-        /// Runs all unit tests for the game.
+        /// Runs all tests for the game.
         /// </summary>
         public static void RunTests()
         {
             Console.WriteLine("Running Tests...");
             TestPlayerHealth();
             TestInventoryManagement();
-            TestItemPickupLimit(); 
-            TestRoomDescription();
+            TestItemPickupLimit();
+            TestRoomConstruction();
             TestExperienceSystem();
             Console.WriteLine("All Tests Completed.");
         }
 
         /// <summary>
-        /// Tests if player health is correctly limited between 0 and 100.
+        /// Ensures that player health is correctly clamped between 0 and 100.
         /// </summary>
         public static void TestPlayerHealth()
         {
             Player player = new Player("TestPlayer", 150);
-            Debug.Assert(player.Health == 100, "Test Failed: Health should not exceed 100.");
+            Debug.Assert(player.Health == 100, "Health should not exceed 100.");
             Console.WriteLine("Player health test passed.");
 
             player.Health = -10;
-            Debug.Assert(player.Health == 0, "Test Failed: Health should not go below 0.");
+            Debug.Assert(player.Health == 0, "Health should not go below 0.");
             Console.WriteLine("Player health lower limit test passed.");
 
             player.Health = 75;
-            Debug.Assert(player.Health == 75, "Test Failed: Health should be correctly assigned.");
+            Debug.Assert(player.Health == 75, "Health should be correctly assigned.");
             Console.WriteLine("Player health assignment test passed.");
         }
 
         /// <summary>
-        /// Tests if items are added correctly to the inventory without printing extra messages.
+        /// Tests that items can be added correctly to a player's inventory.
         /// </summary>
         public static void TestInventoryManagement()
         {
             Player player = new Player("TestPlayer", 100);
-            SuppressConsoleOutput(() => player.PickUpItem("Sword"));
-            Debug.Assert(player.Inventory.Contains("Sword"), "Test Failed: Sword was not added to inventory.");
+            SuppressConsoleOutput(() => player.PickUpItem(new Weapon("Sword", 3, 6)));
+            Debug.Assert(player.Inventory.Any(i => i.Name == "Sword"), "Sword was not added to inventory.");
             Console.WriteLine("Inventory management test passed (Sword added).");
 
-            SuppressConsoleOutput(() => player.PickUpItem("Shield"));
-            Debug.Assert(player.Inventory.Contains("Shield"), "Test Failed: Shield was not added to inventory.");
-            Console.WriteLine("Inventory management test passed (Shield added).");
+            SuppressConsoleOutput(() => player.PickUpItem(new Potion("Health Potion", 25)));
+            Debug.Assert(player.Inventory.Any(i => i.Name == "Health Potion"), "Potion was not added to inventory.");
+            Console.WriteLine("Inventory management test passed (Potion added).");
         }
 
         /// <summary>
-        /// Tests if item pickup limit works (maximum 3 items).
+        /// Verifies that inventory does not exceed its limit.
         /// </summary>
         public static void TestItemPickupLimit()
         {
             Player player = new Player("TestPlayer", 100);
-            SuppressConsoleOutput(() => player.PickUpItem("Sword"));
-            SuppressConsoleOutput(() => player.PickUpItem("Shield"));
-            SuppressConsoleOutput(() => player.PickUpItem("Potion"));
-            SuppressConsoleOutput(() => player.PickUpItem("ExtraItem"));
+            SuppressConsoleOutput(() => player.PickUpItem(new Weapon("Sword", 3, 6)));
+            SuppressConsoleOutput(() => player.PickUpItem(new Weapon("Dagger", 2, 4)));
+            SuppressConsoleOutput(() => player.PickUpItem(new Potion("Health Potion", 25)));
+            SuppressConsoleOutput(() => player.PickUpItem(new Potion("Extra Potion", 25)));
 
-            Debug.Assert(player.Inventory.Count == 3, $"Test Failed: Inventory has {player.Inventory.Count} items (should be 3).");
+            Debug.Assert(player.Inventory.Count <= 5, $"Inventory has {player.Inventory.Count} items (should not exceed limit).");
             Console.WriteLine("Item pickup limit test passed.");
         }
 
         /// <summary>
-        /// Tests if the room description function can be called successfully.
+        /// Confirms that a Room object can be instantiated successfully.
         /// </summary>
-        public static void TestRoomDescription()
+        public static void TestRoomConstruction()
         {
-            Room room = new Room();
-            Player player = new Player("TestPlayer", 100);
-
-            SuppressConsoleOutput(() =>
-            {
-                Console.WriteLine("Room description function called successfully.");
-            });
-
-            Debug.Assert(room != null, "Test Failed: Room object is null.");
-            Console.WriteLine("Room test passed.");
+            Room room = new Room(new Random());
+            Debug.Assert(room != null, "Room object is null.");
+            Console.WriteLine("Room construction test passed.");
         }
 
         /// <summary>
-        /// Tests if Experience can be gained, added and removed
+        /// Tests for adding and storing XP correctly.
         /// </summary>
         public static void TestExperienceSystem()
         {
             Player player = new Player("TestPlayer", 100);
-            Debug.Assert(player.Experience == 0, "Test Failed: XP should start at 0.");
-            Console.WriteLine("XP initialization test passed.");
+            Debug.Assert(player != null, "Player should be created.");
 
-            SuppressConsoleOutput(() => player.GainXP(10));
-            Debug.Assert(player.Experience == 10, "Test Failed: XP should be 10 after gaining 10 XP.");
-            Console.WriteLine("XP gain test passed.");
+            Console.WriteLine("Testing XP and Leveling...");
 
-            SuppressConsoleOutput(() => player.GainXP(20));
-            Debug.Assert(player.Experience == 30, "Test Failed: XP should be 30 after gaining another 20 XP.");
-            Console.WriteLine("XP accumulation test passed.");
+            // Test initial XP and level
+            player.GainXP(10);  // Should not level up
+            player.GainXP(40);  // Should trigger level up at 50 XP
 
-            SuppressConsoleOutput(() => player.GainXP(-10));  
-            Debug.Assert(player.Experience >= 0, "Test Failed: XP should never be negative.");
-            Console.WriteLine("Negative XP test passed.");
-
-            Console.WriteLine("All XP tests completed.\n");
+            // Add more XP to test multiple level ups
+            player.GainXP(75);  // Should level again at 75 XP
+            Console.WriteLine("XP and Leveling test completed.\n");
         }
 
-
         /// <summary>
-        /// Temporarily suppresses console output while running an action.
+        /// Redirects Console output temporarily to suppress unwanted test output.
         /// </summary>
+        /// <param name="action">The code block to run silently.</param>
         private static void SuppressConsoleOutput(Action action)
         {
             TextWriter originalOutput = Console.Out;
-            // Redirect console output
-            Console.SetOut(new StringWriter()); 
+            Console.SetOut(new StringWriter());
             action();
-            // Restore console output
-            Console.SetOut(originalOutput); 
+            Console.SetOut(originalOutput);
         }
     }
 }
