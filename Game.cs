@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace DungeonExplorer
 {
@@ -117,12 +118,14 @@ namespace DungeonExplorer
                     else
                     {
                         Console.WriteLine("You find a locked trapdoor... but you have no key.");
-                        Console.WriteLine("It seems to be sealed shut.");
                         Console.ReadLine();
                     }
                 }
 
                 currentRoom.GetDescription(player, ShowMinimap);
+
+                //Show the Minimap again when choosing movement
+                ShowMinimap();
 
                 Console.WriteLine("Available directions:");
                 foreach (var exit in currentRoom.Exits.Keys)
@@ -130,6 +133,7 @@ namespace DungeonExplorer
                     Console.WriteLine($"- {exit}");
                 }
                 Console.WriteLine("Type a direction to move or 'exit' to leave game.");
+
                 string nav = Console.ReadLine()?.ToLower();
 
                 if (nav == "exit")
@@ -157,7 +161,9 @@ namespace DungeonExplorer
         {
             Console.Clear();
             Console.WriteLine("You descend through the trapdoor into a hidden chamber...");
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("An enormous Troll Boss stands ready to crush you!");
+            Console.ResetColor();
             Console.ReadLine();
 
             Monster boss = new Monster("Troll Boss", 150, 12, 20);
@@ -167,14 +173,7 @@ namespace DungeonExplorer
             while (boss.IsAlive && player.Health > 0)
             {
                 Console.Clear();
-                Console.WriteLine($"--- Turn {turnCount} ---\n");
-                Console.WriteLine($"{player.Name}: {player.Health}/{player.MaxHealth} HP | {player.Mana}/{player.MaxMana} Mana");
-                Console.WriteLine($"{boss.Name}: {boss.Health}/{boss.MaxHealth} HP\n");
-
-                Console.WriteLine("Choose an action:");
-                Console.WriteLine("1. Attack");
-                Console.WriteLine("2. Magic");
-                Console.WriteLine("3. Use Item");
+                UIHelper.ShowBattleHUD(player, boss, turnCount, true);
 
                 string input = Console.ReadLine();
 

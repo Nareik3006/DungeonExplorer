@@ -24,9 +24,14 @@ namespace DungeonExplorer
         public override void Attack(Creature target)
         {
             int damage = rand.Next(minDamage, maxDamage + 1);
+
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"{Name} attacks and deals {damage} damage!");
+            Console.ResetColor();
+
             target.TakeDamage(damage);
         }
+
 
         public void ApplyBurn()
         {

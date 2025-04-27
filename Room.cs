@@ -27,7 +27,8 @@ namespace DungeonExplorer
             "a pool of dried blood in the corner",
             "a pile of bones and armor",
             "a trail of dead rats",
-            "a glowing rune on the floor"
+            "a glowing rune on the floor", // Rune grants magic spells to player
+            "a glowing rune on the floor" // Rune grants magic spells to player
         };
 
         private List<Chest> chests;
@@ -57,6 +58,7 @@ namespace DungeonExplorer
             return chests;
         }
 
+
         public void GetDescription(Player player, Action showMinimap)
         {
             bool exploring = true;
@@ -73,8 +75,11 @@ namespace DungeonExplorer
             }
 
             if (monster != null && monster.IsAlive && exploring) 
-{
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($">> A wild {monster.Name} appears!");
+                Console.ResetColor();
+                Console.ReadLine();
 
                 int turnCount = 1;
 
@@ -86,19 +91,11 @@ namespace DungeonExplorer
                     bool itemUsedThisTurn = false;
                     bool playerTurn = true;
 
+
+
                     while (playerTurn)
                     {
-                        Console.Clear();
-                        Console.WriteLine($"--- Turn {turnCount} ---\n");
-
-                        Console.WriteLine($"-- {player.Name}: {player.Health}/{player.MaxHealth} HP | {player.Mana}/{player.MaxMana} Mana");
-                        Console.WriteLine($"-- {monster.Name}: {monster.Health}/{monster.MaxHealth} HP\n");
-
-                        Console.WriteLine("Choose an action:");
-                        Console.WriteLine("1. Attack");
-                        Console.WriteLine("2. Magic");
-                        Console.WriteLine("3. Use Item");
-                        Console.WriteLine("4. Flee");
+                        UIHelper.ShowBattleHUD(player, monster, turnCount, false);
 
                         string input = Console.ReadLine();
 
@@ -112,14 +109,12 @@ namespace DungeonExplorer
                         {
                             if (Magic.ChooseSpell(player, monster))
                             {
-                                Console.ReadLine();
-                                Console.Clear();
                                 playerTurn = false;
                             }
                             else
                             {
-                                Console.Clear();
-                                Console.WriteLine($"--- Turn {turnCount} ---\n"); // ❗ Reprint header
+                                UIHelper.ShowBattleHUD(player, monster, turnCount, false);
+                                // 🔥 Redraw HUD if canceled
                             }
                         }
                         else if (input == "3")
@@ -128,8 +123,8 @@ namespace DungeonExplorer
                             {
                                 Console.WriteLine("You've already used an item this turn!");
                                 Console.ReadLine();
-                                Console.Clear();
-                                Console.WriteLine($"--- Turn {turnCount} ---\n"); // ❗ Reprint header
+                                UIHelper.ShowBattleHUD(player, monster, turnCount, false);
+                                // 🔥 Redraw HUD after warning
                             }
                             else
                             {
@@ -141,8 +136,8 @@ namespace DungeonExplorer
                                 }
                                 else
                                 {
-                                    Console.Clear();
-                                    Console.WriteLine($"--- Turn {turnCount} ---\n"); // ❗ Reprint header
+                                    UIHelper.ShowBattleHUD(player, monster, turnCount, false);
+                                    // 🔥 Redraw HUD if canceled
                                 }
                             }
                         }
@@ -157,10 +152,11 @@ namespace DungeonExplorer
                         {
                             Console.WriteLine("Invalid choice.");
                             Console.ReadLine();
-                            Console.Clear();
-                            Console.WriteLine($"--- Turn {turnCount} ---\n"); // ❗ Reprint header
+                            UIHelper.ShowBattleHUD(player, monster, turnCount, false);
+                            // 🔥 Redraw HUD after invalid input
                         }
                     }
+
 
                     if (monster.IsAlive)
                     {
@@ -188,18 +184,42 @@ namespace DungeonExplorer
             while (exploring)
             {
                 Console.Clear();
-                Console.WriteLine($"The room is {lightingDescription} and you notice {specialFeature}.");
+                if (specialFeature == "a glowing rune on the floor")
+                {
+                    Console.Write($"The room is {lightingDescription} and you notice ");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write($"{specialFeature}");
+                    Console.ResetColor();
+                    Console.WriteLine(".");
+                }
+                else
+                {
+                    Console.WriteLine($"The room is {lightingDescription} and you notice {specialFeature}.");
+                }
+
                 Console.WriteLine("====================");
                 showMinimap();
                 player.Stats();
 
                 Console.WriteLine("====================");
                 Console.WriteLine("What would you like to inspect?");
-                Console.WriteLine("1. The special feature");
+
+                if (specialFeature == "a glowing rune on the floor")
+                {
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine("1. The special feature");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.WriteLine("1. The special feature");
+                }
 
                 for (int i = 0; i < chests.Count; i++)
                 {
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
                     Console.WriteLine($"{i + 2}. Open Chest #{i + 1}");
+                    Console.ResetColor();
                 }
 
                 int itemMenuIndex = chests.Count + 2;

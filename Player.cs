@@ -45,9 +45,14 @@ namespace DungeonExplorer
         {
             Random rand = new Random();
             int damage = rand.Next(DamageMin, DamageMax + 1);
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($"{Name} attacks and deals {damage} damage!");
+            Console.ResetColor();
+
             target.TakeDamage(damage);
         }
+
 
         public override void TakeDamage(int amount)
         {

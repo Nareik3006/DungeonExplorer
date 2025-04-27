@@ -22,7 +22,9 @@ namespace DungeonExplorer
                     GenerateItem(player); // 🛠 Generate loot only when opening
                 }
 
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine($"You open the chest and find: {Item.Name}");
+                Console.ResetColor();
 
                 if (player.Inventory.Count < 5)
                 {

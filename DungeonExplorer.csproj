@@ -60,6 +60,7 @@
     <Compile Include="Room.cs" />
     <Compile Include="Shield.cs" />
     <Compile Include="Testing.cs" />
+    <Compile Include="UIHelpler.cs" />
     <Compile Include="Weapon.cs" />
   </ItemGroup>
   <ItemGroup>

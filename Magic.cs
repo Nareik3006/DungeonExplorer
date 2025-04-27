@@ -119,7 +119,12 @@ namespace DungeonExplorer
                     int boltDamage = rand.Next(10, 20);
                     int bonus = caster.Spellbook.First(spell => spell.Name == "Bolt").PowerBonus;
                     boltDamage += bonus;
+
+                    UIHelper.ShowMiniBattleHUD(caster, target);
+
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
                     Console.WriteLine($"{caster.Name} casts Bolt and strikes {target.Name} for {boltDamage} magical damage!");
+                    Console.ResetColor();
                     target.TakeDamage(boltDamage);
                 }
             );
@@ -138,7 +143,12 @@ namespace DungeonExplorer
                     healAmount += bonus;
                     int oldHealth = caster.Health;
                     caster.Health = Math.Min(caster.MaxHealth, caster.Health + healAmount);
+
+                    UIHelper.ShowMiniBattleHUD(caster, target);
+
+                    Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"{caster.Name} casts Heal and restores {caster.Health - oldHealth} HP!");
+                    Console.ResetColor();
                 }
             );
         }
@@ -155,7 +165,12 @@ namespace DungeonExplorer
                     int fireDamage = rand.Next(5, 13);
                     int bonus = caster.Spellbook.First(spell => spell.Name == "Fireball").PowerBonus;
                     fireDamage += bonus;
+
+                    UIHelper.ShowMiniBattleHUD(caster, target);
+
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
                     Console.WriteLine($"{caster.Name} casts Fireball and hits {target.Name} for {fireDamage} fire damage!");
+                    Console.ResetColor();
                     target.TakeDamage(fireDamage);
 
                     if (rand.NextDouble() < 0.5)
