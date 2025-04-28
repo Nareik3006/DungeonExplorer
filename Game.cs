@@ -7,29 +7,29 @@ namespace DungeonExplorer
     internal class Game
     {
         private Player player;
-        private Room currentRoom;
+        private GameMap currentRoom;
         private Random rand;
-        private List<Room> allRooms;
-        private Room[,] grid;
-        private Room trapdoorRoom;
+        private List<GameMap> allRooms;
+        private GameMap[,] grid;
+        private GameMap trapdoorRoom;
 
         public Game()
         {
             player = new Player("", 100);
             rand = new Random();
-            allRooms = new List<Room>();
+            allRooms = new List<GameMap>();
             GenerateMaze(3, 3);
         }
 
         private void GenerateMaze(int width, int height)
         {
-            grid = new Room[width, height];
+            grid = new GameMap[width, height];
 
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    grid[x, y] = new Room(rand);
+                    grid[x, y] = new GameMap(rand);
                     allRooms.Add(grid[x, y]);
                 }
             }
@@ -38,7 +38,7 @@ namespace DungeonExplorer
             {
                 for (int y = 0; y < height; y++)
                 {
-                    Room room = grid[x, y];
+                    GameMap room = grid[x, y];
                     if (x > 0) room.Exits["west"] = grid[x - 1, y];
                     if (x < width - 1) room.Exits["east"] = grid[x + 1, y];
                     if (y > 0) room.Exits["north"] = grid[x, y - 1];
@@ -55,7 +55,7 @@ namespace DungeonExplorer
             // ✅ Guarantee that one Chest has the Trapdoor Key
             List<Chest> allChests = new List<Chest>();
 
-            foreach (Room room in allRooms)
+            foreach (GameMap room in allRooms)
             {
                 allChests.AddRange(room.GetChests());
             }
@@ -245,7 +245,7 @@ namespace DungeonExplorer
             {
                 for (int x = 0; x < grid.GetLength(0); x++)
                 {
-                    Room room = grid[x, y];
+                    GameMap room = grid[x, y];
                     if (room == currentRoom)
                         Console.Write(" X ");
                     else if (room.IsVisited)

@@ -78,7 +78,7 @@ namespace DungeonExplorer
         /// </summary>
         public static void TestRoomConstruction()
         {
-            Room room = new Room(new Random());
+            GameMap room = new GameMap(new Random());
             Debug.Assert(room != null, "Room object is null.");
             Console.WriteLine("Room construction test passed.");
         }
