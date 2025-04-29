@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace DungeonExplorer
@@ -48,11 +49,11 @@ namespace DungeonExplorer
 
             currentRoom = grid[0, 0];
 
-            // Select trapdoor room randomly
+            //Select trapdoor room randomly
             trapdoorRoom = grid[rand.Next(width), rand.Next(height)];
             trapdoorRoom.HasTrapdoor = true;
 
-            // ✅ Guarantee that one Chest has the Trapdoor Key
+            //Guarantee that one Chest has the Trapdoor Key
             List<Chest> allChests = new List<Chest>();
 
             foreach (GameMap room in allRooms)
@@ -111,15 +112,32 @@ namespace DungeonExplorer
                     if (player.Inventory.Exists(item => item is Key))
                     {
                         Console.WriteLine("You find a locked trapdoor. Your key fits perfectly...");
-                        Console.ReadLine();
-                        StartBossFight();
-                        return;
+                        Console.WriteLine("Would you like to use the key to descend? (y/n)");
+                        string input = Console.ReadLine()?.Trim().ToLower();
+
+                        if (input == "y")
+                        {
+                            var keyItem = player.Inventory.FirstOrDefault(item => item is Key);
+                            if (keyItem != null)
+                            {
+                                player.Inventory.Remove(keyItem);
+                            }
+
+                            StartBossFight();
+                            return;
+                        }
+                        else
+                        {
+                            Console.WriteLine("You decide to hold onto the key for now.");
+                            Console.ReadLine();
+                        }
                     }
                     else
                     {
                         Console.WriteLine("You find a locked trapdoor... but you have no key.");
                         Console.ReadLine();
                     }
+
                 }
 
                 currentRoom.GetDescription(player, ShowMinimap);
@@ -188,7 +206,7 @@ namespace DungeonExplorer
                         Console.ReadLine();
                     }
 
-                    turnCount++; // ✅ Only after an attack
+                    turnCount++; //Only after an attack
                 }
                 else if (input == "2")
                 {
@@ -200,7 +218,7 @@ namespace DungeonExplorer
                             Console.ReadLine();
                         }
 
-                        turnCount++; // ✅ Only if a spell was cast
+                        turnCount++; //Only if a spell was cast
                     }
                 }
                 else if (input == "3")
@@ -213,14 +231,14 @@ namespace DungeonExplorer
                             Console.ReadLine();
                         }
 
-                        turnCount++; // ✅ Only if an item was used
+                        turnCount++; //Only if an item was used
                     }
                 }
                 else
                 {
                     Console.WriteLine("Invalid input.");
                     Console.ReadLine();
-                    // ❌ No turn increment here
+                    //No turn increment here
                 }
             }
 

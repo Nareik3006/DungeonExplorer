@@ -2,22 +2,26 @@
 
 namespace DungeonExplorer
 {
-    /// <summary>
-    /// Abstract base class for all living creatures.
-    /// </summary>
     internal abstract class Creature : IDamageable
     {
         public string Name { get; set; }
-        public int Health { get; set; }
-        public int MaxHealth { get; set; }
+        public int Health { get; protected set; }
+        public int MaxHealth { get; protected set; }
+        public bool IsAlive => Health > 0;
 
-        public abstract void Attack(Creature target);
+        public Creature(string name, int health)
+        {
+            Name = name;
+            MaxHealth = health;
+            Health = health;
+        }
 
         public virtual void TakeDamage(int amount)
         {
-            Health = Math.Max(0, Health - amount);
+            Health -= amount;
+            if (Health < 0) Health = 0;
         }
 
-        public bool IsAlive => Health > 0;
+        public abstract void Attack(Creature target);
     }
 }

@@ -4,19 +4,14 @@ namespace DungeonExplorer
 {
     internal class Monster : Creature
     {
-        private static Random rand = new Random();
-
+        private readonly Random rand = new Random();
         private int minDamage;
         private int maxDamage;
 
-        private int burnTurnsRemaining = 0;
-        private int burnDamagePerTurn = 0;
+        public int BurnTurns { get; private set; } = 0;
 
-        public Monster(string name, int health, int minDamage, int maxDamage)
+        public Monster(string name, int health, int minDamage, int maxDamage) : base(name, health)
         {
-            Name = name;
-            MaxHealth = health;
-            Health = health;
             this.minDamage = minDamage;
             this.maxDamage = maxDamage;
         }
@@ -24,33 +19,30 @@ namespace DungeonExplorer
         public override void Attack(Creature target)
         {
             int damage = rand.Next(minDamage, maxDamage + 1);
-
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"{Name} attacks and deals {damage} damage!");
             Console.ResetColor();
-
             target.TakeDamage(damage);
         }
 
-
         public void ApplyBurn()
         {
-            burnTurnsRemaining = rand.Next(2, 4); // 2 or 3 turns
-            burnDamagePerTurn = Math.Max(1, MaxHealth / 10); // 10% of Max HP
+            if (rand.NextDouble() < 0.5)
+            {
+                BurnTurns = rand.Next(2, 4);
+            }
         }
 
         public void TakeTurn(Player player)
         {
-            if (burnTurnsRemaining > 0)
+            if (BurnTurns > 0)
             {
-                Console.WriteLine($"{Name} suffers {burnDamagePerTurn} burn damage from the flames!");
-                TakeDamage(burnDamagePerTurn);
-                burnTurnsRemaining--;
-
-                if (burnTurnsRemaining == 0)
-                {
-                    Console.WriteLine($"{Name} is no longer burned!");
-                }
+                int burnDamage = (int)(0.1 * MaxHealth);
+                TakeDamage(burnDamage);
+                BurnTurns--;
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine($"{Name} suffers {burnDamage} burn damage!");
+                Console.ResetColor();
             }
 
             if (IsAlive)
@@ -61,21 +53,34 @@ namespace DungeonExplorer
 
         public static Monster GenerateRandom()
         {
-            int roll = rand.Next(3);
-            if (roll == 0)
-                return new Monster("Goblin", 30, 5, 10);
-            else if (roll == 1)
-                return new Monster("Troll", 50, 8, 15);
-            else
-                return new Monster("Bat", 20, 3, 7);
-        }
-        public int RewardXP()
-        {
-            if (Name == "Goblin") return 20;
-            if (Name == "Troll") return 40;
-            if (Name == "Bat") return 15;
-            return 10; // default
+            Random rand = new Random();
+            int choice = rand.Next(3);
+            switch (choice)
+            {
+                case 0:
+                    return new Monster("Goblin", 40, 5, 10);
+                case 1:
+                    return new Monster("Troll", 60, 8, 12);
+                case 2:
+                    return new Monster("Bat", 30, 3, 6);
+                default:
+                    return new Monster("Slime", 20, 2, 4);
+            }
         }
 
+        public int RewardXP()
+        {
+            switch (Name)
+            {
+                case "Goblin":
+                    return 20;
+                case "Troll":
+                    return 40;
+                case "Bat":
+                    return 15;
+                default:
+                    return 10;
+            }
+        }
     }
 }

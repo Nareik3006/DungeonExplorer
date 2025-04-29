@@ -30,11 +30,8 @@ namespace DungeonExplorer
 
         public List<Item> Inventory => inventory;
 
-        public Player(string name, int health)
+        public Player(string name, int health) : base(name, health)
         {
-            Name = string.IsNullOrWhiteSpace(name) ? "Unknown" : name;
-            MaxHealth = health;
-            Health = health;
             MaxMana = 50;
             Mana = MaxMana;
             inventory = new List<Item>();
@@ -73,6 +70,7 @@ namespace DungeonExplorer
 
         public void HandleDeath()
         {
+            Console.ReadLine();
             Console.Clear();
             Console.WriteLine($"{Name} has fallen in battle...");
             Console.WriteLine("Game Over.");
@@ -229,7 +227,7 @@ namespace DungeonExplorer
                     }
                     else if (choice == inventory.Count + 2)
                     {
-                        break; // Exit item menu
+                        break; //Exit item menu
                     }
                     else
                     {
@@ -297,6 +295,10 @@ namespace DungeonExplorer
                     Console.ReadLine();
                 }
             }
+        }
+        public void SetHealth(int value)
+        {
+            Health = Math.Min(value, MaxHealth);
         }
 
         public void Stats()

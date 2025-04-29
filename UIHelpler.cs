@@ -4,7 +4,7 @@ namespace DungeonExplorer
 {
     internal static class UIHelper
     {
-        // Shows full battle HUD (Turn, HP, Mana, Enemy HP, Action Choices)
+        //Shows full battle HUD (Turn, HP, Mana, Enemy HP, Action Choices)
         public static void ShowBattleHUD(Player player, Creature monster, int turnCount, bool isBoss)
         {
             Console.Clear();
@@ -26,7 +26,7 @@ namespace DungeonExplorer
             Console.WriteLine();
         }
 
-        // Shows a mini HUD during spell casting
+        //Shows a mini HUD during spell casting
         public static void ShowMiniBattleHUD(Player caster, Creature target)
         {
             Console.Clear();

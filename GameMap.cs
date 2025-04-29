@@ -27,8 +27,9 @@ namespace DungeonExplorer
             "a pool of dried blood in the corner",
             "a pile of bones and armor",
             "a trail of dead rats",
-            "a glowing rune on the floor", // Rune grants magic spells to player
-            "a glowing rune on the floor" // Rune grants magic spells to player
+            //Rune grants magic spells to player
+            "a glowing rune on the floor", 
+            "a glowing rune on the floor" 
         };
 
         private List<Chest> chests;
@@ -63,7 +64,7 @@ namespace DungeonExplorer
         {
             bool exploring = true;
 
-            // Spawn monster once per room, only once ever
+            //Spawn monster once per room, only once ever
             Random rand = new Random();
             if (!monsterAssigned)
             {
@@ -114,7 +115,7 @@ namespace DungeonExplorer
                             else
                             {
                                 UIHelper.ShowBattleHUD(player, monster, turnCount, false);
-                                // 🔥 Redraw HUD if canceled
+                                //Redraw HUD if canceled
                             }
                         }
                         else if (input == "3")
@@ -124,7 +125,7 @@ namespace DungeonExplorer
                                 Console.WriteLine("You've already used an item this turn!");
                                 Console.ReadLine();
                                 UIHelper.ShowBattleHUD(player, monster, turnCount, false);
-                                // 🔥 Redraw HUD after warning
+                                //Redraw HUD after warning
                             }
                             else
                             {
@@ -137,7 +138,7 @@ namespace DungeonExplorer
                                 else
                                 {
                                     UIHelper.ShowBattleHUD(player, monster, turnCount, false);
-                                    // 🔥 Redraw HUD if canceled
+                                    //Redraw HUD if canceled
                                 }
                             }
                         }
@@ -153,7 +154,7 @@ namespace DungeonExplorer
                             Console.WriteLine("Invalid choice.");
                             Console.ReadLine();
                             UIHelper.ShowBattleHUD(player, monster, turnCount, false);
-                            // 🔥 Redraw HUD after invalid input
+                            //Redraw HUD after invalid input
                         }
                     }
 
@@ -244,7 +245,7 @@ namespace DungeonExplorer
                             {
                                 Console.WriteLine("You approach the glowing rune...");
 
-                                int spellChoice = rand.Next(2); // 0 = Heal, 1 = Fireball
+                                int spellChoice = rand.Next(2); //0 = Heal, 1 = Fireball
                                 Spell newSpell = (spellChoice == 0) ? Magic.GetHealSpell() : Magic.GetFireballSpell();
 
                                 var knownSpell = player.Spellbook.FirstOrDefault(spell => spell.Name == newSpell.Name);

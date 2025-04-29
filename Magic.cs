@@ -142,7 +142,7 @@ namespace DungeonExplorer
                     int bonus = caster.Spellbook.First(spell => spell.Name == "Heal").PowerBonus;
                     healAmount += bonus;
                     int oldHealth = caster.Health;
-                    caster.Health = Math.Min(caster.MaxHealth, caster.Health + healAmount);
+                    caster.SetHealth(caster.Health + healAmount);
 
                     UIHelper.ShowMiniBattleHUD(caster, target);
 

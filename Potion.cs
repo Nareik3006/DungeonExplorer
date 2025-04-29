@@ -14,7 +14,7 @@ namespace DungeonExplorer
         public override void Use(Player player)
         {
             int oldHealth = player.Health;
-            player.Health = Math.Min(player.MaxHealth, player.Health + healAmount);
+            player.SetHealth(player.Health + healAmount);
             Console.WriteLine($"{Name} used! Restored {player.Health - oldHealth} HP.");
         }
 

@@ -7,18 +7,15 @@ namespace DungeonExplorer
     /// </summary>
     internal class Program
     {
-        /// <summary>
-        /// The Main method initializes and starts the game.
-        /// </summary>
         static void Main(string[] args)
         {
-            // Runs predefined tests before the game starts
-            Testing.RunTests(); // DEBUG TESTS
+            //Runs predefined tests before the game starts
+            Testing.RunTests();
 
-            // Create a new game instance
+            //Create a new game instance
             Game game = new Game();
 
-            // Start the game
+            //Start the game
             game.Start();
         }
     }
