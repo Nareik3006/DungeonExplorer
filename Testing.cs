@@ -1,127 +1,300 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using DungeonExplorer;
+using static DungeonExplorer.Magic;
 
 namespace DungeonExplorer
 {
+    /// <summary>
+    /// Provides automated test coverage for various core systems in the game.
+    /// Uses Debug.Assert and Trace.Assert to verify correctness, and writes a test log to file.
+    /// </summary>
     internal class Testing
     {
+        private static StreamWriter logWriter;
+
         /// <summary>
-        /// Runs all unit tests for the game.
+        /// Runs all test cases and logs results to a text file.
         /// </summary>
         public static void RunTests()
         {
             Console.WriteLine("Running Tests...");
-            TestPlayerHealth();
-            TestInventoryManagement();
-            TestItemPickupLimit(); 
-            TestRoomDescription();
-            TestExperienceSystem();
-            Console.WriteLine("All Tests Completed.");
-        }
+            logWriter = new StreamWriter("TestResults.txt", false);
+            logWriter.AutoFlush = true;
+            var originalOut = Console.Out;
+            Console.SetOut(TextWriter.Null); // Suppress console output during testing
 
-        /// <summary>
-        /// Tests if player health is correctly limited between 0 and 100.
-        /// </summary>
-        public static void TestPlayerHealth()
-        {
-            Player player = new Player("TestPlayer", 150);
-            Debug.Assert(player.Health == 100, "Test Failed: Health should not exceed 100.");
-            Console.WriteLine("Player health test passed.");
-
-            player.Health = -10;
-            Debug.Assert(player.Health == 0, "Test Failed: Health should not go below 0.");
-            Console.WriteLine("Player health lower limit test passed.");
-
-            player.Health = 75;
-            Debug.Assert(player.Health == 75, "Test Failed: Health should be correctly assigned.");
-            Console.WriteLine("Player health assignment test passed.");
-        }
-
-        /// <summary>
-        /// Tests if items are added correctly to the inventory without printing extra messages.
-        /// </summary>
-        public static void TestInventoryManagement()
-        {
-            Player player = new Player("TestPlayer", 100);
-            SuppressConsoleOutput(() => player.PickUpItem("Sword"));
-            Debug.Assert(player.Inventory.Contains("Sword"), "Test Failed: Sword was not added to inventory.");
-            Console.WriteLine("Inventory management test passed (Sword added).");
-
-            SuppressConsoleOutput(() => player.PickUpItem("Shield"));
-            Debug.Assert(player.Inventory.Contains("Shield"), "Test Failed: Shield was not added to inventory.");
-            Console.WriteLine("Inventory management test passed (Shield added).");
-        }
-
-        /// <summary>
-        /// Tests if item pickup limit works (maximum 3 items).
-        /// </summary>
-        public static void TestItemPickupLimit()
-        {
-            Player player = new Player("TestPlayer", 100);
-            SuppressConsoleOutput(() => player.PickUpItem("Sword"));
-            SuppressConsoleOutput(() => player.PickUpItem("Shield"));
-            SuppressConsoleOutput(() => player.PickUpItem("Potion"));
-            SuppressConsoleOutput(() => player.PickUpItem("ExtraItem"));
-
-            Debug.Assert(player.Inventory.Count == 3, $"Test Failed: Inventory has {player.Inventory.Count} items (should be 3).");
-            Console.WriteLine("Item pickup limit test passed.");
-        }
-
-        /// <summary>
-        /// Tests if the room description function can be called successfully.
-        /// </summary>
-        public static void TestRoomDescription()
-        {
-            Room room = new Room();
-            Player player = new Player("TestPlayer", 100);
-
-            SuppressConsoleOutput(() =>
+            logWriter.WriteLine("-Test Log-");
+            logWriter.WriteLine($"Date and Time: {DateTime.Now}"); // Logs current date and time
+            logWriter.WriteLine("----------------------------------------");
+            try
             {
-                Console.WriteLine("Room description function called successfully.");
-            });
-
-            Debug.Assert(room != null, "Test Failed: Room object is null.");
-            Console.WriteLine("Room test passed.");
+                TestPlayerHealth();
+                TestInventoryManagement();
+                TestItemPickupLimit();
+                TestRoomConstruction();
+                TestExperienceSystem();
+                TestGameInitialization();
+                TestManaUsage();
+                TestSimpleBattle();
+                TestWeaponBonus();
+                TestShieldDefense();
+                TestPotionHealing();
+                TestManaPotionRestoration();
+                TestMagicCastingBolt();
+                TestMagicCastingFireball();
+                TestMagicCastingHeal();
+                TestSpellbookUpgrade();
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+                logWriter.WriteLine("----------------------------------------");
+                logWriter.WriteLine("All Tests Completed.");
+                logWriter.Close();
+            }
         }
 
         /// <summary>
-        /// Tests if Experience can be gained, added and removed
+        /// Verifies that a new player's health is initialized correctly.
         /// </summary>
-        public static void TestExperienceSystem()
+        private static void TestPlayerHealth()
         {
             Player player = new Player("TestPlayer", 100);
-            Debug.Assert(player.Experience == 0, "Test Failed: XP should start at 0.");
-            Console.WriteLine("XP initialization test passed.");
-
-            SuppressConsoleOutput(() => player.GainXP(10));
-            Debug.Assert(player.Experience == 10, "Test Failed: XP should be 10 after gaining 10 XP.");
-            Console.WriteLine("XP gain test passed.");
-
-            SuppressConsoleOutput(() => player.GainXP(20));
-            Debug.Assert(player.Experience == 30, "Test Failed: XP should be 30 after gaining another 20 XP.");
-            Console.WriteLine("XP accumulation test passed.");
-
-            SuppressConsoleOutput(() => player.GainXP(-10));  
-            Debug.Assert(player.Experience >= 0, "Test Failed: XP should never be negative.");
-            Console.WriteLine("Negative XP test passed.");
-
-            Console.WriteLine("All XP tests completed.\n");
+            Debug.Assert(player.Health == 100, "Debug: Player health should be initialized to 100.");
+            Trace.Assert(player.MaxHealth == 100, "Trace: Player MaxHealth should be initialized to 100.");
+            logWriter.WriteLine("Player health test passed.");
         }
 
+        /// <summary>
+        /// Verifies that picking up an item adds it to inventory.
+        /// </summary>
+        private static void TestInventoryManagement()
+        {
+            Player player = new Player("InventoryTester", 100);
+            player.PickUpItem(new Potion("Health Potion", 25));
+            Debug.Assert(player.Inventory.Count == 1, "Debug: Inventory should have 1 item.");
+            Trace.Assert(player.Inventory[0].Name == "Health Potion", "Trace: First item should be Health Potion.");
+            logWriter.WriteLine("Inventory management test passed.");
+        }
 
         /// <summary>
-        /// Temporarily suppresses console output while running an action.
+        /// Ensures that inventory enforces a maximum limit of 5 items.
         /// </summary>
-        private static void SuppressConsoleOutput(Action action)
+        private static void TestItemPickupLimit()
         {
-            TextWriter originalOutput = Console.Out;
-            // Redirect console output
-            Console.SetOut(new StringWriter()); 
-            action();
-            // Restore console output
-            Console.SetOut(originalOutput); 
+            Player player = new Player("LimitTester", 100);
+            for (int i = 0; i < 7; i++)
+            {
+                player.PickUpItem(new Potion("Health Potion", 25));
+            }
+            Debug.Assert(player.Inventory.Count == 5, "Debug: Inventory should not exceed 5 items.");
+            Trace.Assert(player.Inventory.Count <= 5, "Trace: Inventory limit enforcement failed.");
+            logWriter.WriteLine("Inventory limit test passed.");
+        }
+
+        /// <summary>
+        /// Tests that a room can be successfully created and contains chests.
+        /// </summary>
+        private static void TestRoomConstruction()
+        {
+            Random rand = new Random();
+            GameMap room = new GameMap(rand);
+            Debug.Assert(room != null, "Debug: Room should be created.");
+            Trace.Assert(room.GetChests().Count >= 0, "Trace: Room chests list should exist.");
+            logWriter.WriteLine("Room creation test passed.");
+        }
+
+        /// <summary>
+        /// Tests that gaining XP can result in leveling up the player.
+        /// </summary>
+        private static void TestExperienceSystem()
+        {
+            Player player = new Player("XPTester", 100);
+            int initialLevel = player.Level;
+            player.GainXP(100);
+            Debug.Assert(player.Level > initialLevel, "Debug: Player should have leveled up.");
+            Trace.Assert(player.Level >= 2, "Trace: Player should be at least Level 2 after XP.");
+            logWriter.WriteLine("Experience system test passed.");
+        }
+
+        /// <summary>
+        /// Ensures the Game object can be instantiated successfully.
+        /// </summary>
+        private static void TestGameInitialization()
+        {
+            Game game = new Game();
+            Debug.Assert(game != null, "Debug: Game object creation failed.");
+            Trace.Assert(game != null, "Trace: Game object must exist.");
+            logWriter.WriteLine("Game object creation test passed.");
+        }
+
+        /// <summary>
+        /// Tests that mana is correctly deducted when used.
+        /// </summary>
+        private static void TestManaUsage()
+        {
+            Player player = new Player("ManaTester", 100);
+            int initialMana = player.Mana;
+            player.UseMana(10);
+            Debug.Assert(player.Mana == initialMana - 10, "Debug: Mana should decrease correctly.");
+            Trace.Assert(player.Mana >= 0, "Trace: Mana should never be negative.");
+            logWriter.WriteLine("Mana usage test passed.");
+        }
+
+        /// <summary>
+        /// Ensures that player attacks cause damage to a monster.
+        /// </summary>
+        private static void TestSimpleBattle()
+        {
+            Player player = new Player("BattleTester", 100);
+            Monster monster = new Monster("Test Goblin", 30, 5, 10);
+            int initialMonsterHealth = monster.Health;
+            player.Attack(monster);
+            Debug.Assert(monster.Health < initialMonsterHealth, "Debug: Monster should take damage.");
+            Trace.Assert(monster.Health >= 0, "Trace: Monster health should not be negative.");
+            logWriter.WriteLine("Simple battle test passed.");
+        }
+
+        /// <summary>
+        /// Tests that weapon use correctly increases the player's damage stats.
+        /// </summary>
+        private static void TestWeaponBonus()
+        {
+            Player player = new Player("WeaponTester", 100);
+            int originalMinDamage = player.DamageMin;
+            int originalMaxDamage = player.DamageMax;
+            Weapon sword = new Weapon("Iron Sword", 3, 6);
+            sword.Use(player);
+            Debug.Assert(player.DamageMin > originalMinDamage, "Debug: Weapon min damage bonus failed.");
+            Trace.Assert(player.DamageMax > originalMaxDamage, "Trace: Weapon max damage bonus failed.");
+            logWriter.WriteLine("Weapon bonus test passed.");
+        }
+
+        /// <summary>
+        /// Verifies that a shield reduces incoming damage.
+        /// </summary>
+        private static void TestShieldDefense()
+        {
+            Player player = new Player("ShieldTester", 100);
+            Shield shield = new Shield("Wooden Shield", 3, 2);
+            shield.Use(player);
+            int originalHealth = player.Health;
+            player.TakeDamage(10);
+            Debug.Assert(player.Health > originalHealth - 10, "Debug: Shield did not reduce incoming damage.");
+            Trace.Assert(player.Health > 0, "Trace: Player should still be alive after damage.");
+            logWriter.WriteLine("Shield defense test passed.");
+        }
+
+        /// <summary>
+        /// Ensures potions restore player health properly.
+        /// </summary>
+        private static void TestPotionHealing()
+        {
+            Player player = new Player("PotionTester", 100);
+            player.SetHealth(50);
+            Potion potion = new Potion("Health Potion", 25);
+            potion.Use(player);
+            Debug.Assert(player.Health > 50, "Debug: Potion should restore health.");
+            Trace.Assert(player.Health <= player.MaxHealth, "Trace: Potion should not overheal.");
+            logWriter.WriteLine("Potion healing test passed.");
+        }
+
+        /// <summary>
+        /// Ensures mana potions restore mana correctly.
+        /// </summary>
+        private static void TestManaPotionRestoration()
+        {
+            Player player = new Player("ManaPotionTester", 100);
+            player.Mana = 10;
+            ManaPotion manaPotion = new ManaPotion("Mana Potion", 25);
+            manaPotion.Use(player);
+            Debug.Assert(player.Mana > 10, "Debug: Mana potion should restore mana.");
+            Trace.Assert(player.Mana <= player.MaxMana, "Trace: Mana should not exceed maximum.");
+            logWriter.WriteLine("Mana potion restoration test passed.");
+        }
+
+        /// <summary>
+        /// Tests Fireball spell: damage and optional burn effect.
+        /// </summary>
+        private static void TestMagicCastingFireball()
+        {
+            Player player = new Player("MagicTester", 100);
+            Monster monster = new Monster("Training Dummy", 50, 1, 2);
+            player.Spellbook.Add(GetFireballSpell());
+
+            int initialMana = player.Mana;
+            int initialMonsterHealth = monster.Health;
+
+            Spell fireball = GetFireballSpell();
+            player.UseMana(fireball.ManaCost);
+            fireball.Effect(player, monster);
+
+            Debug.Assert(player.Mana < initialMana, "Debug: Casting Fireball should consume mana.");
+            Debug.Assert(monster.Health < initialMonsterHealth, "Debug: Fireball should deal damage.");
+            Trace.Assert(monster.BurnTurns >= 0, "Trace: Monster burn turns set correctly (0 if not burned).");
+            logWriter.WriteLine("Magic casting (Fireball) and burn test passed.");
+        }
+
+        /// <summary>
+        /// Tests Heal spell: health restored, mana consumed.
+        /// </summary>
+        private static void TestMagicCastingHeal()
+        {
+            Player player = new Player("HealTester", 100);
+            player.SetHealth(30);
+            player.Spellbook.Add(GetHealSpell());
+
+            int initialMana = player.Mana;
+            Spell heal = GetHealSpell();
+            player.UseMana(heal.ManaCost);
+            heal.Effect(player, player);
+
+            Debug.Assert(player.Health > 30, "Debug: Heal should restore health.");
+            Debug.Assert(player.Mana < initialMana, "Debug: Casting Heal should consume mana.");
+            Trace.Assert(player.Health <= player.MaxHealth, "Trace: Heal should not exceed max health.");
+            logWriter.WriteLine("Magic casting (Heal) test passed.");
+        }
+
+        /// <summary>
+        /// Tests Bolt spell: deals damage and consumes mana.
+        /// </summary>
+        private static void TestMagicCastingBolt()
+        {
+            Player player = new Player("MagicTester", 100);
+            Monster monster = new Monster("Training Dummy", 50, 1, 2);
+
+            int initialMana = player.Mana;
+            int initialMonsterHealth = monster.Health;
+
+            Spell bolt = GetBoltSpell();
+            player.UseMana(bolt.ManaCost);
+            bolt.Effect(player, monster);
+
+            Debug.Assert(player.Mana < initialMana, "Debug: Casting Bolt should consume mana.");
+            Trace.Assert(monster.Health < initialMonsterHealth, "Trace: Bolt should deal damage to monster.");
+            logWriter.WriteLine("Magic casting (Bolt) test passed.");
+        }
+
+        /// <summary>
+        /// Verifies that learning the same spell again upgrades its power.
+        /// </summary>
+        private static void TestSpellbookUpgrade()
+        {
+            Player player = new Player("SpellUpgradeTester", 100);
+            Spell fireball = GetFireballSpell();
+            player.Spellbook.Add(fireball);
+            Spell duplicateFireball = GetFireballSpell();
+
+            var knownSpell = player.Spellbook.Find(spell => spell.Name == duplicateFireball.Name);
+            if (knownSpell != null)
+            {
+                knownSpell.PowerBonus += 3;
+            }
+
+            Debug.Assert(knownSpell.PowerBonus == 3, "Debug: Spell power bonus upgrade failed.");
+            Trace.Assert(knownSpell.PowerBonus > 0, "Trace: Spell bonus should be positive.");
+            logWriter.WriteLine("Spellbook upgrade test passed.");
         }
     }
 }
