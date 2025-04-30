@@ -4,15 +4,21 @@ using System.Linq;
 
 namespace DungeonExplorer
 {
+    /// <summary>
+    /// Static class that defines and manages magic spells in the game.
+    /// </summary>
     internal static class Magic
     {
+        /// <summary>
+        /// Represents a single spell that can be cast by the player.
+        /// </summary>
         internal class Spell
         {
             public string Name { get; }
             public int ManaCost { get; }
             public string Description { get; }
             public Action<Player, Creature> Effect { get; }
-            public int PowerBonus { get; set; } = 0; // Bonus added by upgrades
+            public int PowerBonus { get; set; } = 0; // Increases with rune upgrades
 
             public Spell(string name, int manaCost, string description, Action<Player, Creature> effect)
             {
@@ -23,11 +29,18 @@ namespace DungeonExplorer
             }
         }
 
+        /// <summary>
+        /// Displays the player's known spells, allows inspection or casting.
+        /// </summary>
+        /// <param name="caster">The player casting the spell.</param>
+        /// <param name="target">The target of the spell (usually a monster).</param>
+        /// <returns>True if a spell was cast, false if cancelled or failed.</returns>
         public static bool ChooseSpell(Player caster, Creature target)
         {
             while (true)
             {
                 Console.Clear();
+
                 if (caster.Spellbook.Count == 0)
                 {
                     Console.WriteLine("You don't know any spells yet.");
@@ -35,7 +48,10 @@ namespace DungeonExplorer
                     return false;
                 }
 
+                Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine("Your Spells:");
+                Console.ResetColor();
+
                 for (int i = 0; i < caster.Spellbook.Count; i++)
                 {
                     Console.WriteLine($"{i + 1}. {caster.Spellbook[i].Name} ({caster.Spellbook[i].ManaCost} Mana)");
@@ -72,12 +88,6 @@ namespace DungeonExplorer
                                 Console.ReadLine();
                                 return true;
                             }
-                            else
-                            {
-                                Console.WriteLine("Not enough mana!");
-                                Console.ReadLine();
-                                return false;
-                            }
                         }
                         else if (action == "3")
                         {
@@ -107,6 +117,9 @@ namespace DungeonExplorer
             }
         }
 
+        /// <summary>
+        /// Returns the Bolt spell, a basic lightning attack.
+        /// </summary>
         public static Spell GetBoltSpell()
         {
             return new Spell(
@@ -117,12 +130,14 @@ namespace DungeonExplorer
                 {
                     Random rand = new Random();
                     int boltDamage = rand.Next(10, 20);
-                    int bonus = caster.Spellbook.First(spell => spell.Name == "Bolt").PowerBonus;
+
+                    var known = caster.Spellbook.FirstOrDefault(spell => spell.Name == "Bolt");
+                    int bonus = known != null ? known.PowerBonus : 0;
                     boltDamage += bonus;
 
                     UIHelper.ShowMiniBattleHUD(caster, target);
 
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.ForegroundColor = ConsoleColor.Blue;
                     Console.WriteLine($"{caster.Name} casts Bolt and strikes {target.Name} for {boltDamage} magical damage!");
                     Console.ResetColor();
                     target.TakeDamage(boltDamage);
@@ -130,17 +145,22 @@ namespace DungeonExplorer
             );
         }
 
+        /// <summary>
+        /// Returns the Heal spell, restoring health to the caster.
+        /// </summary>
         public static Spell GetHealSpell()
         {
             return new Spell(
                 "Heal",
                 20,
-                "Restores 25 health to the caster.",
+                "Restores 40 health to the caster.",
                 (caster, target) =>
                 {
-                    int healAmount = 25;
-                    int bonus = caster.Spellbook.First(spell => spell.Name == "Heal").PowerBonus;
+                    int healAmount = 40;
+                    var known = caster.Spellbook.FirstOrDefault(spell => spell.Name == "Heal");
+                    int bonus = known != null ? known.PowerBonus : 0;
                     healAmount += bonus;
+
                     int oldHealth = caster.Health;
                     caster.SetHealth(caster.Health + healAmount);
 
@@ -153,6 +173,9 @@ namespace DungeonExplorer
             );
         }
 
+        /// <summary>
+        /// Returns the Fireball spell, which deals damage and may inflict burn.
+        /// </summary>
         public static Spell GetFireballSpell()
         {
             return new Spell(
@@ -163,12 +186,14 @@ namespace DungeonExplorer
                 {
                     Random rand = new Random();
                     int fireDamage = rand.Next(5, 13);
-                    int bonus = caster.Spellbook.First(spell => spell.Name == "Fireball").PowerBonus;
+
+                    var known = caster.Spellbook.FirstOrDefault(spell => spell.Name == "Fireball");
+                    int bonus = known != null ? known.PowerBonus : 0;
                     fireDamage += bonus;
 
                     UIHelper.ShowMiniBattleHUD(caster, target);
 
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.ForegroundColor = ConsoleColor.Blue;
                     Console.WriteLine($"{caster.Name} casts Fireball and hits {target.Name} for {fireDamage} fire damage!");
                     Console.ResetColor();
                     target.TakeDamage(fireDamage);

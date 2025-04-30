@@ -5,6 +5,10 @@ using System.Linq;
 
 namespace DungeonExplorer
 {
+    /// <summary>
+    /// Represents a single room in the dungeon.
+    /// Each room can have special lighting, features, chests, and monsters.
+    /// </summary>
     internal class GameMap
     {
         public bool IsVisited { get; set; } = false;
@@ -27,9 +31,8 @@ namespace DungeonExplorer
             "a pool of dried blood in the corner",
             "a pile of bones and armor",
             "a trail of dead rats",
-            //Rune grants magic spells to player
-            "a glowing rune on the floor", 
-            "a glowing rune on the floor" 
+            "a glowing rune on the floor",
+            "a glowing rune on the floor" // Doubled to make runes slightly more common
         };
 
         private List<Chest> chests;
@@ -38,44 +41,56 @@ namespace DungeonExplorer
         private Monster monster;
         private bool monsterAssigned = false;
 
+        /// <summary>
+        /// Dictionary holding the exits to neighboring rooms (north, south, east, west).
+        /// </summary>
         public Dictionary<string, GameMap> Exits { get; set; } = new Dictionary<string, GameMap>();
 
+        /// <summary>
+        /// Initializes a room with random lighting, feature, and chests.
+        /// </summary>
         public GameMap(Random rand)
         {
             lightingDescription = roomLighting[rand.Next(roomLighting.Count)];
             specialFeature = roomFeatures[rand.Next(roomFeatures.Count)];
-            int chestCount = rand.Next(0, 3);
 
+            int chestCount = rand.Next(0, 3); // 0–2 chests
             chests = new List<Chest>();
+
             for (int i = 0; i < chestCount; i++)
             {
                 chests.Add(new Chest());
-
-
             }
         }
+
+        /// <summary>
+        /// Returns the list of chests present in the room.
+        /// </summary>
         public List<Chest> GetChests()
         {
             return chests;
         }
 
-
+        /// <summary>
+        /// Displays the room description, handles player interactions like fighting monsters, looting chests, and inspecting features.
+        /// </summary>
         public void GetDescription(Player player, Action showMinimap)
         {
             bool exploring = true;
 
-            //Spawn monster once per room, only once ever
+            // --- Monster Generation (only once per room) ---
             Random rand = new Random();
             if (!monsterAssigned)
             {
-                if (rand.NextDouble() < 0.5)
+                if (rand.NextDouble() < 0.5) // 50% chance to spawn monster
                 {
                     monster = Monster.GenerateRandom();
                 }
                 monsterAssigned = true;
             }
 
-            if (monster != null && monster.IsAlive && exploring) 
+            // --- Monster Combat ---
+            if (monster != null && monster.IsAlive && exploring)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($">> A wild {monster.Name} appears!");
@@ -92,12 +107,9 @@ namespace DungeonExplorer
                     bool itemUsedThisTurn = false;
                     bool playerTurn = true;
 
-
-
                     while (playerTurn)
                     {
                         UIHelper.ShowBattleHUD(player, monster, turnCount, false);
-
                         string input = Console.ReadLine();
 
                         if (input == "1")
@@ -114,8 +126,7 @@ namespace DungeonExplorer
                             }
                             else
                             {
-                                UIHelper.ShowBattleHUD(player, monster, turnCount, false);
-                                //Redraw HUD if canceled
+                                UIHelper.ShowBattleHUD(player, monster, turnCount, false); // Redraw HUD if canceled
                             }
                         }
                         else if (input == "3")
@@ -125,7 +136,6 @@ namespace DungeonExplorer
                                 Console.WriteLine("You've already used an item this turn!");
                                 Console.ReadLine();
                                 UIHelper.ShowBattleHUD(player, monster, turnCount, false);
-                                //Redraw HUD after warning
                             }
                             else
                             {
@@ -138,7 +148,6 @@ namespace DungeonExplorer
                                 else
                                 {
                                     UIHelper.ShowBattleHUD(player, monster, turnCount, false);
-                                    //Redraw HUD if canceled
                                 }
                             }
                         }
@@ -154,11 +163,10 @@ namespace DungeonExplorer
                             Console.WriteLine("Invalid choice.");
                             Console.ReadLine();
                             UIHelper.ShowBattleHUD(player, monster, turnCount, false);
-                            //Redraw HUD after invalid input
                         }
                     }
 
-
+                    // --- Monster's Turn ---
                     if (monster.IsAlive)
                     {
                         monster.TakeTurn(player);
@@ -182,6 +190,7 @@ namespace DungeonExplorer
                 Console.WriteLine("The corpse of the slain monster lies still.");
             }
 
+            // --- Room Exploration ---
             while (exploring)
             {
                 Console.Clear();
@@ -201,9 +210,7 @@ namespace DungeonExplorer
                 Console.WriteLine("====================");
                 showMinimap();
                 player.Stats();
-
                 Console.WriteLine("====================");
-                Console.WriteLine("What would you like to inspect?");
 
                 if (specialFeature == "a glowing rune on the floor")
                 {
@@ -227,10 +234,15 @@ namespace DungeonExplorer
                 int spellbookMenuIndex = chests.Count + 3;
                 int exitIndex = chests.Count + 4;
 
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"{itemMenuIndex}. Open item menu");
-                Console.WriteLine($"{spellbookMenuIndex}. Open spellbook");
-                Console.WriteLine($"{exitIndex}. Leave the room");
+                Console.ResetColor();
 
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine($"{spellbookMenuIndex}. Open spellbook");
+                Console.ResetColor();
+
+                Console.WriteLine($"{exitIndex}. Leave the room");
 
                 string input = Console.ReadLine();
                 int choice;
@@ -239,46 +251,8 @@ namespace DungeonExplorer
                 {
                     if (choice == 1)
                     {
-                        if (specialFeature == "a glowing rune on the floor")
-                        {
-                            if (!runeUsed)
-                            {
-                                Console.WriteLine("You approach the glowing rune...");
-
-                                int spellChoice = rand.Next(2); //0 = Heal, 1 = Fireball
-                                Spell newSpell = (spellChoice == 0) ? Magic.GetHealSpell() : Magic.GetFireballSpell();
-
-                                var knownSpell = player.Spellbook.FirstOrDefault(spell => spell.Name == newSpell.Name);
-                                if (knownSpell != null)
-                                {
-                                    knownSpell.PowerBonus += 3;
-                                    Console.WriteLine($"The rune strengthens your {knownSpell.Name} spell! (+3 bonus power!)");
-                                }
-                                else
-                                {
-                                    player.Spellbook.Add(newSpell);
-                                    Console.WriteLine($"You absorb the power of the rune and learn {newSpell.Name}!");
-                                }
-
-                                runeUsed = true;
-                            }
-                            else
-                            {
-                                Console.WriteLine("The rune has faded and holds no more power.");
-                            }
-                            Console.ReadLine();
-                            Console.Clear();
-                        }
-                        else
-                        {
-                            Console.WriteLine("You inspect the feature closely. It seems eerie but harmless.");
-                            Console.ReadLine();
-                            Console.Clear();
-                        }
+                        InspectFeature(player);
                     }
-
-
-
                     else if (choice >= 2 && choice < 2 + chests.Count)
                     {
                         int chestIndex = choice - 2;
@@ -310,6 +284,50 @@ namespace DungeonExplorer
                     Console.WriteLine("Invalid input. Try again.");
                     Console.ReadLine();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Handles inspecting the special feature of the room.
+        /// </summary>
+        private void InspectFeature(Player player)
+        {
+            if (specialFeature == "a glowing rune on the floor")
+            {
+                if (!runeUsed)
+                {
+                    Console.WriteLine("You approach the glowing rune...");
+
+                    Random rand = new Random();
+                    int spellChoice = rand.Next(2); // 0 = Heal, 1 = Fireball
+                    Spell newSpell = (spellChoice == 0) ? Magic.GetHealSpell() : Magic.GetFireballSpell();
+
+                    var knownSpell = player.Spellbook.FirstOrDefault(spell => spell.Name == newSpell.Name);
+                    if (knownSpell != null)
+                    {
+                        knownSpell.PowerBonus += 3;
+                        Console.WriteLine($"The rune strengthens your {knownSpell.Name} spell! (+3 bonus power!)");
+                    }
+                    else
+                    {
+                        player.Spellbook.Add(newSpell);
+                        Console.WriteLine($"You absorb the power of the rune and learn {newSpell.Name}!");
+                    }
+
+                    runeUsed = true;
+                }
+                else
+                {
+                    Console.WriteLine("The rune has faded and holds no more power.");
+                }
+                Console.ReadLine();
+                Console.Clear();
+            }
+            else
+            {
+                Console.WriteLine("You inspect the feature closely. It seems eerie but harmless.");
+                Console.ReadLine();
+                Console.Clear();
             }
         }
     }

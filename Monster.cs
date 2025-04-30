@@ -2,20 +2,33 @@
 
 namespace DungeonExplorer
 {
+    /// <summary>
+    /// Represents an enemy monster in the game.
+    /// Inherits from the Creature base class.
+    /// </summary>
     internal class Monster : Creature
     {
         private readonly Random rand = new Random();
         private int minDamage;
         private int maxDamage;
 
+        /// <summary>
+        /// Number of turns this monster will take burn damage.
+        /// </summary>
         public int BurnTurns { get; private set; } = 0;
 
+        /// <summary>
+        /// Creates a monster with a name, health, and a damage range.
+        /// </summary>
         public Monster(string name, int health, int minDamage, int maxDamage) : base(name, health)
         {
             this.minDamage = minDamage;
             this.maxDamage = maxDamage;
         }
 
+        /// <summary>
+        /// Monster attacks a target, dealing random damage within its range.
+        /// </summary>
         public override void Attack(Creature target)
         {
             int damage = rand.Next(minDamage, maxDamage + 1);
@@ -25,6 +38,10 @@ namespace DungeonExplorer
             target.TakeDamage(damage);
         }
 
+        /// <summary>
+        /// Applies a burning effect to the monster that lasts 2–3 turns.
+        /// Has a 50% chance to apply (handled externally).
+        /// </summary>
         public void ApplyBurn()
         {
             if (rand.NextDouble() < 0.5)
@@ -33,6 +50,10 @@ namespace DungeonExplorer
             }
         }
 
+        /// <summary>
+        /// Executes the monster's turn:
+        /// applies burn damage if burning, then performs a normal attack if still alive.
+        /// </summary>
         public void TakeTurn(Player player)
         {
             if (BurnTurns > 0)
@@ -51,6 +72,9 @@ namespace DungeonExplorer
             }
         }
 
+        /// <summary>
+        /// Randomly generates a type of monster (Goblin, Troll, Bat).
+        /// </summary>
         public static Monster GenerateRandom()
         {
             Random rand = new Random();
@@ -64,10 +88,13 @@ namespace DungeonExplorer
                 case 2:
                     return new Monster("Bat", 30, 3, 6);
                 default:
-                    return new Monster("Slime", 20, 2, 4);
+                    return new Monster("Slime", 20, 2, 4); // Fallback
             }
         }
 
+        /// <summary>
+        /// Returns the amount of XP rewarded for defeating this monster.
+        /// </summary>
         public int RewardXP()
         {
             switch (Name)

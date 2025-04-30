@@ -5,18 +5,24 @@ using static DungeonExplorer.Magic;
 
 namespace DungeonExplorer
 {
+    /// <summary>
+    /// Provides automated test coverage for various core systems in the game.
+    /// Uses Debug.Assert and Trace.Assert to verify correctness, and writes a test log to file.
+    /// </summary>
     internal class Testing
     {
         private static StreamWriter logWriter;
 
+        /// <summary>
+        /// Runs all test cases and logs results to a text file.
+        /// </summary>
         public static void RunTests()
         {
             Console.WriteLine("Running Tests...");
             logWriter = new StreamWriter("TestResults.txt", false);
             logWriter.AutoFlush = true;
-
             var originalOut = Console.Out;
-            Console.SetOut(TextWriter.Null);
+            Console.SetOut(TextWriter.Null); // Suppress console output during testing
 
             logWriter.WriteLine("-Test Log-");
 
@@ -42,12 +48,14 @@ namespace DungeonExplorer
             finally
             {
                 Console.SetOut(originalOut);
-               
                 logWriter.WriteLine("All Tests Completed.");
                 logWriter.Close();
             }
         }
 
+        /// <summary>
+        /// Verifies that a new player's health is initialized correctly.
+        /// </summary>
         private static void TestPlayerHealth()
         {
             Player player = new Player("TestPlayer", 100);
@@ -56,6 +64,9 @@ namespace DungeonExplorer
             logWriter.WriteLine("Player health test passed.");
         }
 
+        /// <summary>
+        /// Verifies that picking up an item adds it to inventory.
+        /// </summary>
         private static void TestInventoryManagement()
         {
             Player player = new Player("InventoryTester", 100);
@@ -65,6 +76,9 @@ namespace DungeonExplorer
             logWriter.WriteLine("Inventory management test passed.");
         }
 
+        /// <summary>
+        /// Ensures that inventory enforces a maximum limit of 5 items.
+        /// </summary>
         private static void TestItemPickupLimit()
         {
             Player player = new Player("LimitTester", 100);
@@ -77,6 +91,9 @@ namespace DungeonExplorer
             logWriter.WriteLine("Inventory limit test passed.");
         }
 
+        /// <summary>
+        /// Tests that a room can be successfully created and contains chests.
+        /// </summary>
         private static void TestRoomConstruction()
         {
             Random rand = new Random();
@@ -86,6 +103,9 @@ namespace DungeonExplorer
             logWriter.WriteLine("Room creation test passed.");
         }
 
+        /// <summary>
+        /// Tests that gaining XP can result in leveling up the player.
+        /// </summary>
         private static void TestExperienceSystem()
         {
             Player player = new Player("XPTester", 100);
@@ -96,6 +116,9 @@ namespace DungeonExplorer
             logWriter.WriteLine("Experience system test passed.");
         }
 
+        /// <summary>
+        /// Ensures the Game object can be instantiated successfully.
+        /// </summary>
         private static void TestGameInitialization()
         {
             Game game = new Game();
@@ -104,6 +127,9 @@ namespace DungeonExplorer
             logWriter.WriteLine("Game object creation test passed.");
         }
 
+        /// <summary>
+        /// Tests that mana is correctly deducted when used.
+        /// </summary>
         private static void TestManaUsage()
         {
             Player player = new Player("ManaTester", 100);
@@ -114,6 +140,9 @@ namespace DungeonExplorer
             logWriter.WriteLine("Mana usage test passed.");
         }
 
+        /// <summary>
+        /// Ensures that player attacks cause damage to a monster.
+        /// </summary>
         private static void TestSimpleBattle()
         {
             Player player = new Player("BattleTester", 100);
@@ -125,6 +154,9 @@ namespace DungeonExplorer
             logWriter.WriteLine("Simple battle test passed.");
         }
 
+        /// <summary>
+        /// Tests that weapon use correctly increases the player's damage stats.
+        /// </summary>
         private static void TestWeaponBonus()
         {
             Player player = new Player("WeaponTester", 100);
@@ -137,6 +169,9 @@ namespace DungeonExplorer
             logWriter.WriteLine("Weapon bonus test passed.");
         }
 
+        /// <summary>
+        /// Verifies that a shield reduces incoming damage.
+        /// </summary>
         private static void TestShieldDefense()
         {
             Player player = new Player("ShieldTester", 100);
@@ -149,6 +184,9 @@ namespace DungeonExplorer
             logWriter.WriteLine("Shield defense test passed.");
         }
 
+        /// <summary>
+        /// Ensures potions restore player health properly.
+        /// </summary>
         private static void TestPotionHealing()
         {
             Player player = new Player("PotionTester", 100);
@@ -160,6 +198,9 @@ namespace DungeonExplorer
             logWriter.WriteLine("Potion healing test passed.");
         }
 
+        /// <summary>
+        /// Ensures mana potions restore mana correctly.
+        /// </summary>
         private static void TestManaPotionRestoration()
         {
             Player player = new Player("ManaPotionTester", 100);
@@ -171,46 +212,51 @@ namespace DungeonExplorer
             logWriter.WriteLine("Mana potion restoration test passed.");
         }
 
+        /// <summary>
+        /// Tests Fireball spell: damage and optional burn effect.
+        /// </summary>
         private static void TestMagicCastingFireball()
         {
             Player player = new Player("MagicTester", 100);
             Monster monster = new Monster("Training Dummy", 50, 1, 2);
-
-            player.Spellbook.Add(Magic.GetFireballSpell()); //Add Fireball manually to spellbook!
+            player.Spellbook.Add(GetFireballSpell());
 
             int initialMana = player.Mana;
             int initialMonsterHealth = monster.Health;
 
-            Spell fireball = Magic.GetFireballSpell();
-            player.UseMana(fireball.ManaCost); //Deduct mana manually
+            Spell fireball = GetFireballSpell();
+            player.UseMana(fireball.ManaCost);
             fireball.Effect(player, monster);
 
             Debug.Assert(player.Mana < initialMana, "Debug: Casting Fireball should consume mana.");
             Debug.Assert(monster.Health < initialMonsterHealth, "Debug: Fireball should deal damage.");
             Trace.Assert(monster.BurnTurns >= 0, "Trace: Monster burn turns set correctly (0 if not burned).");
-
             logWriter.WriteLine("Magic casting (Fireball) and burn test passed.");
         }
 
+        /// <summary>
+        /// Tests Heal spell: health restored, mana consumed.
+        /// </summary>
         private static void TestMagicCastingHeal()
         {
             Player player = new Player("HealTester", 100);
             player.SetHealth(30);
-
-            player.Spellbook.Add(Magic.GetHealSpell()); //Add Heal manually to spellbook!
+            player.Spellbook.Add(GetHealSpell());
 
             int initialMana = player.Mana;
-            Spell heal = Magic.GetHealSpell();
-            player.UseMana(heal.ManaCost); //Deduct mana manually
+            Spell heal = GetHealSpell();
+            player.UseMana(heal.ManaCost);
             heal.Effect(player, player);
 
             Debug.Assert(player.Health > 30, "Debug: Heal should restore health.");
             Debug.Assert(player.Mana < initialMana, "Debug: Casting Heal should consume mana.");
             Trace.Assert(player.Health <= player.MaxHealth, "Trace: Heal should not exceed max health.");
-
             logWriter.WriteLine("Magic casting (Heal) test passed.");
         }
 
+        /// <summary>
+        /// Tests Bolt spell: deals damage and consumes mana.
+        /// </summary>
         private static void TestMagicCastingBolt()
         {
             Player player = new Player("MagicTester", 100);
@@ -219,27 +265,31 @@ namespace DungeonExplorer
             int initialMana = player.Mana;
             int initialMonsterHealth = monster.Health;
 
-            Spell bolt = Magic.GetBoltSpell();
-            player.UseMana(bolt.ManaCost); //Deduct mana manually
+            Spell bolt = GetBoltSpell();
+            player.UseMana(bolt.ManaCost);
             bolt.Effect(player, monster);
 
             Debug.Assert(player.Mana < initialMana, "Debug: Casting Bolt should consume mana.");
             Trace.Assert(monster.Health < initialMonsterHealth, "Trace: Bolt should deal damage to monster.");
-
             logWriter.WriteLine("Magic casting (Bolt) test passed.");
         }
 
+        /// <summary>
+        /// Verifies that learning the same spell again upgrades its power.
+        /// </summary>
         private static void TestSpellbookUpgrade()
         {
             Player player = new Player("SpellUpgradeTester", 100);
-            Spell fireball = Magic.GetFireballSpell();
+            Spell fireball = GetFireballSpell();
             player.Spellbook.Add(fireball);
-            Spell duplicateFireball = Magic.GetFireballSpell();
+            Spell duplicateFireball = GetFireballSpell();
+
             var knownSpell = player.Spellbook.Find(spell => spell.Name == duplicateFireball.Name);
             if (knownSpell != null)
             {
                 knownSpell.PowerBonus += 3;
             }
+
             Debug.Assert(knownSpell.PowerBonus == 3, "Debug: Spell power bonus upgrade failed.");
             Trace.Assert(knownSpell.PowerBonus > 0, "Trace: Spell bonus should be positive.");
             logWriter.WriteLine("Spellbook upgrade test passed.");

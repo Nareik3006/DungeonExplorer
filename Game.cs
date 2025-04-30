@@ -5,6 +5,9 @@ using System.Threading;
 
 namespace DungeonExplorer
 {
+    /// <summary>
+    /// Main class responsible for generating the dungeon, managing player input, navigation, and triggering the boss fight.
+    /// </summary>
     internal class Game
     {
         private Player player;
@@ -14,29 +17,34 @@ namespace DungeonExplorer
         private GameMap[,] grid;
         private GameMap trapdoorRoom;
 
+        /// <summary>
+        /// Initializes the game and builds the dungeon map.
+        /// </summary>
         public Game()
         {
             player = new Player("", 100);
             rand = new Random();
             allRooms = new List<GameMap>();
-            GenerateMaze(3, 3);
+            GenerateMaze(3, 3); // Create a 3x3 dungeon grid
         }
 
+        /// <summary>
+        /// Generates the maze layout and ensures one chest contains the trapdoor key.
+        /// </summary>
         private void GenerateMaze(int width, int height)
         {
             grid = new GameMap[width, height];
 
+            // Create rooms and add to allRooms list
             for (int x = 0; x < width; x++)
-            {
                 for (int y = 0; y < height; y++)
                 {
                     grid[x, y] = new GameMap(rand);
                     allRooms.Add(grid[x, y]);
                 }
-            }
 
+            // Link rooms to each other
             for (int x = 0; x < width; x++)
-            {
                 for (int y = 0; y < height; y++)
                 {
                     GameMap room = grid[x, y];
@@ -45,21 +53,17 @@ namespace DungeonExplorer
                     if (y > 0) room.Exits["north"] = grid[x, y - 1];
                     if (y < height - 1) room.Exits["south"] = grid[x, y + 1];
                 }
-            }
 
             currentRoom = grid[0, 0];
 
-            //Select trapdoor room randomly
+            // Randomly choose a room to contain the trapdoor
             trapdoorRoom = grid[rand.Next(width), rand.Next(height)];
             trapdoorRoom.HasTrapdoor = true;
 
-            //Guarantee that one Chest has the Trapdoor Key
+            // Ensure one chest contains a trapdoor key
             List<Chest> allChests = new List<Chest>();
-
             foreach (GameMap room in allRooms)
-            {
                 allChests.AddRange(room.GetChests());
-            }
 
             if (allChests.Count > 0)
             {
@@ -68,36 +72,118 @@ namespace DungeonExplorer
             }
         }
 
-
+        /// <summary>
+        /// Begins the game, prompts for tutorial, and starts exploration.
+        /// </summary>
         public void Start()
         {
             Console.WriteLine("Dungeon Explorer");
             player.Name = GetPlayerName();
 
-            string input = "";
-            while (input != "y" && input != "n")
-            {
-                Console.WriteLine("Would you like to start the game? (y/n)");
-                input = Console.ReadLine()?.Trim().ToLower();
+            Console.WriteLine();
+            Console.WriteLine("Would you like to read the tutorial? (y/n)");
+            string input = Console.ReadLine()?.Trim().ToLower();
 
-                if (input == "y")
-                {
-                    Console.Clear();
-                    Console.WriteLine("Game Started...");
-                    EnterRoom();
-                }
-                else if (input == "n")
-                {
-                    Console.WriteLine("Exiting game...");
-                    Console.ReadLine();
-                }
-                else
-                {
-                    Console.WriteLine("Invalid input. Please enter 'y' or 'n'.");
-                }
+            if (input == "y")
+            {
+                ShowTutorial();
             }
+            else if (input == "n")
+            {
+                Console.WriteLine("Skipping tutorial...");
+                Console.ReadLine();
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. Skipping tutorial by default.");
+                Console.ReadLine();
+            }
+
+            Console.Clear();
+            Console.WriteLine("Game Started...");
+            EnterRoom();
         }
 
+        /// <summary>
+        /// Displays the tutorial with basic instructions for the game.
+        /// </summary>
+        private void ShowTutorial()
+        {
+            Console.Clear();
+            Console.WriteLine("TUTORIAL");
+            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("Navigate through rooms using 'north', 'south', 'east', 'west'.");
+
+            Console.Write("Open ");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("chests ");
+            Console.ResetColor();
+            Console.Write("to find ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("items ");
+            Console.ResetColor();
+            Console.Write("like ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("potions");
+            Console.ResetColor();
+            Console.Write(", ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("weapons");
+            Console.ResetColor();
+            Console.Write(", and ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("shields");
+            Console.ResetColor();
+            Console.WriteLine(".");
+
+            Console.Write("Keep an eye out for ");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("Special Features");
+            Console.ResetColor();
+            Console.Write(" of rooms to learn new ");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("spells");
+            Console.ResetColor();
+            Console.WriteLine("!");
+
+            Console.Write("Fight ");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("monsters");
+            Console.ResetColor();
+            Console.Write(" by choosing ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("attack");
+            Console.ResetColor();
+            Console.Write(", ");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("magic");
+            Console.ResetColor();
+            Console.Write(", or ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("items");
+            Console.ResetColor();
+            Console.WriteLine(".");
+
+            Console.WriteLine("Earn experience (XP) to level up and grow stronger!");
+
+            Console.Write("Look for the trapdoor and use a ");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("key");
+            Console.ResetColor();
+            Console.Write(" to reach the ");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("boss room");
+            Console.ResetColor();
+            Console.WriteLine(".");
+
+            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("Press Enter to begin your adventure!");
+            Console.ReadLine();
+        }
+
+        /// <summary>
+        /// Manages the main exploration loop and player movement.
+        /// </summary>
         private void EnterRoom()
         {
             bool exploring = true;
@@ -107,6 +193,7 @@ namespace DungeonExplorer
                 currentRoom.IsVisited = true;
                 Console.Clear();
 
+                // Trapdoor logic
                 if (currentRoom == trapdoorRoom)
                 {
                     if (player.Inventory.Exists(item => item is Key))
@@ -119,9 +206,7 @@ namespace DungeonExplorer
                         {
                             var keyItem = player.Inventory.FirstOrDefault(item => item is Key);
                             if (keyItem != null)
-                            {
                                 player.Inventory.Remove(keyItem);
-                            }
 
                             StartBossFight();
                             return;
@@ -137,19 +222,15 @@ namespace DungeonExplorer
                         Console.WriteLine("You find a locked trapdoor... but you have no key.");
                         Console.ReadLine();
                     }
-
                 }
 
                 currentRoom.GetDescription(player, ShowMinimap);
-
-                //Show the Minimap again when choosing movement
-                ShowMinimap();
+                ShowMinimap(); // Show again before movement
 
                 Console.WriteLine("Available directions:");
                 foreach (var exit in currentRoom.Exits.Keys)
-                {
                     Console.WriteLine($"- {exit}");
-                }
+
                 Console.WriteLine("Type a direction to move or 'exit' to leave game.");
 
                 string nav = Console.ReadLine()?.ToLower();
@@ -174,7 +255,9 @@ namespace DungeonExplorer
             }
         }
 
-
+        /// <summary>
+        /// Handles the final boss fight sequence when the player uses the trapdoor key.
+        /// </summary>
         private void StartBossFight()
         {
             Console.Clear();
@@ -185,7 +268,6 @@ namespace DungeonExplorer
             Console.ReadLine();
 
             Monster boss = new Monster("Troll Boss", 150, 12, 20);
-
             int turnCount = 1;
 
             while (boss.IsAlive && player.Health > 0)
@@ -199,14 +281,12 @@ namespace DungeonExplorer
                 {
                     player.Attack(boss);
                     Console.ReadLine();
-
                     if (boss.IsAlive)
                     {
                         boss.TakeTurn(player);
                         Console.ReadLine();
                     }
-
-                    turnCount++; //Only after an attack
+                    turnCount++;
                 }
                 else if (input == "2")
                 {
@@ -217,8 +297,7 @@ namespace DungeonExplorer
                             boss.TakeTurn(player);
                             Console.ReadLine();
                         }
-
-                        turnCount++; //Only if a spell was cast
+                        turnCount++;
                     }
                 }
                 else if (input == "3")
@@ -230,32 +309,44 @@ namespace DungeonExplorer
                             boss.TakeTurn(player);
                             Console.ReadLine();
                         }
-
-                        turnCount++; //Only if an item was used
+                        turnCount++;
                     }
                 }
                 else
                 {
                     Console.WriteLine("Invalid input.");
                     Console.ReadLine();
-                    //No turn increment here
                 }
             }
 
             if (player.Health > 0)
             {
                 Console.WriteLine("You have defeated the Troll Boss and completed the dungeon!");
-                Console.ReadLine();
-                Environment.Exit(0);
+                Console.WriteLine("----------------------------------------");
+                Console.WriteLine("Would you like to play again? (y/n)");
+                string input = Console.ReadLine()?.Trim().ToLower();
+
+                if (input == "y")
+                {
+                    Console.Clear();
+                    Program.Main(null); // Restarts the game
+                }
+                else
+                {
+                    Console.WriteLine("Thanks for playing!");
+                    Console.ReadLine();
+                    Environment.Exit(0);
+                }
             }
             else
             {
-                Console.WriteLine("You were defeated...");
-                Console.ReadLine();
-                Environment.Exit(0);
+                player.HandleDeath();
             }
         }
 
+        /// <summary>
+        /// Displays the minimap based on the player's visited rooms.
+        /// </summary>
         private void ShowMinimap()
         {
             Console.WriteLine("Minimap:");
@@ -276,6 +367,9 @@ namespace DungeonExplorer
             Console.WriteLine();
         }
 
+        /// <summary>
+        /// Prompts the player to enter a valid name.
+        /// </summary>
         private string GetPlayerName()
         {
             string name = "";

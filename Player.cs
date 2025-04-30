@@ -5,6 +5,10 @@ using static DungeonExplorer.Magic;
 
 namespace DungeonExplorer
 {
+    /// <summary>
+    /// Represents the player character in the game.
+    /// Inherits from Creature and contains all logic for stats, combat, leveling, inventory, and magic.
+    /// </summary>
     internal class Player : Creature
     {
         private List<Item> inventory;
@@ -13,9 +17,9 @@ namespace DungeonExplorer
         public int Level { get; private set; } = 1;
         private int currentXP = 0;
         private int xpToNextLevel = 50;
+
         private int baseMinDamage = 5;
         private int baseMaxDamage = 10;
-
         private int bonusMinDamage = 0;
         private int bonusMaxDamage = 0;
 
@@ -30,6 +34,9 @@ namespace DungeonExplorer
 
         public List<Item> Inventory => inventory;
 
+        /// <summary>
+        /// Constructs the player with a name and starting health.
+        /// </summary>
         public Player(string name, int health) : base(name, health)
         {
             MaxMana = 50;
@@ -38,6 +45,9 @@ namespace DungeonExplorer
             Spellbook = new List<Spell> { Magic.GetBoltSpell() };
         }
 
+        /// <summary>
+        /// Performs a basic attack against a target.
+        /// </summary>
         public override void Attack(Creature target)
         {
             Random rand = new Random();
@@ -50,7 +60,9 @@ namespace DungeonExplorer
             target.TakeDamage(damage);
         }
 
-
+        /// <summary>
+        /// Handles taking damage with shield reduction if active.
+        /// </summary>
         public override void TakeDamage(int amount)
         {
             if (shieldTurnsRemaining > 0)
@@ -68,22 +80,45 @@ namespace DungeonExplorer
             }
         }
 
+        /// <summary>
+        /// Triggers the death sequence and ends the game.
+        /// </summary>
         public void HandleDeath()
         {
             Console.ReadLine();
             Console.Clear();
             Console.WriteLine($"{Name} has fallen in battle...");
             Console.WriteLine("Game Over.");
-            Console.ReadLine();
-            Environment.Exit(0);
+            Console.WriteLine("----------------------------------------");
+            Console.WriteLine("Would you like to try again? (y/n)");
+            string input = Console.ReadLine()?.Trim().ToLower();
+
+            if (input == "y")
+            {
+                Console.Clear();
+                Program.Main(null); // Restarts the game
+            }
+            else
+            {
+                Console.WriteLine("Thanks for playing!");
+                Console.ReadLine();
+                Environment.Exit(0);
+            }
+
         }
 
+        /// <summary>
+        /// Applies a temporary shield that reduces incoming damage for a set number of turns.
+        /// </summary>
         public void ApplyShield(int reduction, int turns)
         {
             shieldReduction = reduction;
             shieldTurnsRemaining = turns;
         }
 
+        /// <summary>
+        /// Grants XP and checks for level-up.
+        /// </summary>
         public void GainXP(int amount)
         {
             currentXP += amount;
@@ -94,6 +129,9 @@ namespace DungeonExplorer
             }
         }
 
+        /// <summary>
+        /// Increases stats when the player levels up.
+        /// </summary>
         private void LevelUp()
         {
             Level++;
@@ -105,10 +143,14 @@ namespace DungeonExplorer
             Mana = MaxMana;
             baseMinDamage += 2;
             baseMaxDamage += 3;
+
             Console.WriteLine($"*** {Name} leveled up to Level {Level}! ***");
             Console.WriteLine($"Max Health: {MaxHealth}, Max Mana: {MaxMana}, Damage: {baseMinDamage}-{baseMaxDamage}");
         }
 
+        /// <summary>
+        /// Adds an item to the player's inventory if space allows.
+        /// </summary>
         public void PickUpItem(Item item)
         {
             if (inventory.Count < 5)
@@ -122,6 +164,9 @@ namespace DungeonExplorer
             }
         }
 
+        /// <summary>
+        /// Attempts to spend mana. Returns true if successful.
+        /// </summary>
         public bool UseMana(int amount)
         {
             if (Mana >= amount)
@@ -132,16 +177,23 @@ namespace DungeonExplorer
             else
             {
                 Console.WriteLine("Not enough mana!");
+                Console.ReadLine();
                 return false;
             }
         }
 
+        /// <summary>
+        /// Applies a temporary weapon bonus (used by weapon items).
+        /// </summary>
         public void ApplyTemporaryWeaponBonus(int minBonus, int maxBonus)
         {
             bonusMinDamage = minBonus;
             bonusMaxDamage = maxBonus;
         }
 
+        /// <summary>
+        /// Displays and manages the item menu during or outside of battle.
+        /// </summary>
         public bool OpenItemMenu(bool battleMode = false)
         {
             while (true)
@@ -155,7 +207,10 @@ namespace DungeonExplorer
                     return false;
                 }
 
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Your Inventory:");
+                Console.ResetColor();
+
                 for (int i = 0; i < inventory.Count; i++)
                 {
                     Console.WriteLine($"{i + 1}. {inventory[i].Name}");
@@ -163,7 +218,6 @@ namespace DungeonExplorer
 
                 Console.WriteLine($"{inventory.Count + 1}. Show Potions");
                 Console.WriteLine($"{inventory.Count + 2}. Exit");
-
                 Console.WriteLine("\nSelect an item by number:");
 
                 if (int.TryParse(Console.ReadLine(), out int choice))
@@ -197,7 +251,6 @@ namespace DungeonExplorer
                                 return battleMode ? true : false;
 
                             case "3":
-
                                 if (selectedItem is Key)
                                 {
                                     Console.WriteLine("You cannot delete a Key item!");
@@ -209,7 +262,6 @@ namespace DungeonExplorer
                                     Console.WriteLine("Item deleted.");
                                     Console.ReadLine();
                                 }
-
                                 break;
 
                             case "4":
@@ -227,7 +279,7 @@ namespace DungeonExplorer
                     }
                     else if (choice == inventory.Count + 2)
                     {
-                        break; //Exit item menu
+                        break; // Exit item menu
                     }
                     else
                     {
@@ -245,11 +297,15 @@ namespace DungeonExplorer
             return false;
         }
 
+        /// <summary>
+        /// Allows the player to inspect known spells.
+        /// </summary>
         public void OpenSpellbook()
         {
             while (true)
             {
                 Console.Clear();
+
                 if (Spellbook.Count == 0)
                 {
                     Console.WriteLine("You have no spells yet.");
@@ -257,7 +313,10 @@ namespace DungeonExplorer
                     return;
                 }
 
+                Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine("Your Spellbook:");
+                Console.ResetColor();
+
                 for (int i = 0; i < Spellbook.Count; i++)
                 {
                     Console.WriteLine($"{i + 1}. {Spellbook[i].Name} ({Spellbook[i].ManaCost} Mana)");
@@ -296,11 +355,18 @@ namespace DungeonExplorer
                 }
             }
         }
+
+        /// <summary>
+        /// Sets the player's health (used for testing and healing).
+        /// </summary>
         public void SetHealth(int value)
         {
             Health = Math.Min(value, MaxHealth);
         }
 
+        /// <summary>
+        /// Displays all player stats: name, health, mana, level, XP, damage, shield, and items.
+        /// </summary>
         public void Stats()
         {
             Console.WriteLine("====================");
@@ -310,15 +376,19 @@ namespace DungeonExplorer
             Console.WriteLine($"Mana: {Mana}/{MaxMana}");
             Console.WriteLine($"XP: {currentXP}/{xpToNextLevel}");
             Console.WriteLine($"Damage: {DamageMin}-{DamageMax}");
+
             if (shieldTurnsRemaining > 0)
                 Console.WriteLine($"Shield: -{shieldReduction} damage ({shieldTurnsRemaining} turns remaining)");
+
             Console.WriteLine("Items: " + (inventory.Count > 0 ? string.Join(", ", inventory.Select(i => i.Name)) : "No items"));
         }
 
+        /// <summary>
+        /// Lists all health and mana potions in the inventory.
+        /// </summary>
         public void ShowAllPotions()
         {
             Console.Clear();
-
             var potions = inventory.Where(item => item is Potion || item is ManaPotion);
 
             if (!potions.Any())
