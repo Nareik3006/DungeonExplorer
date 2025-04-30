@@ -25,7 +25,8 @@ namespace DungeonExplorer
             Console.SetOut(TextWriter.Null); // Suppress console output during testing
 
             logWriter.WriteLine("-Test Log-");
-
+            logWriter.WriteLine($"Date and Time: {DateTime.Now}"); // Logs current date and time
+            logWriter.WriteLine("----------------------------------------");
             try
             {
                 TestPlayerHealth();
@@ -48,6 +49,7 @@ namespace DungeonExplorer
             finally
             {
                 Console.SetOut(originalOut);
+                logWriter.WriteLine("----------------------------------------");
                 logWriter.WriteLine("All Tests Completed.");
                 logWriter.Close();
             }
