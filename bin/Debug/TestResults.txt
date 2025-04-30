@@ -1,18 +1,2 @@
 -Test Log-
-Player health test passed.
-Inventory management test passed.
-Inventory limit test passed.
-Room creation test passed.
-Experience system test passed.
-Game object creation test passed.
-Mana usage test passed.
-Simple battle test passed.
-Weapon bonus test passed.
-Shield defense test passed.
-Potion healing test passed.
-Mana potion restoration test passed.
-Magic casting (Bolt) test passed.
-Magic casting (Fireball) and burn test passed.
-Magic casting (Heal) test passed.
-Spellbook upgrade test passed.
-All Tests Completed.
+Date and Time:
